@@ -1,0 +1,61 @@
+- id: q1
+  question: >-
+    You run a container on the stack's internal network and it cannot reach the internet. What makes
+    that result interpretable rather than ambiguous?
+  options:
+    - The network is declared internal, so Docker deliberately attaches no gateway to it.
+    - You ran the same command on the default bridge first, and it succeeded.
+    - The HTTP client in that image is known not to work without a special build flag.
+    - The container has no resolver configured, so every name lookup fails by design.
+  correct: 1
+  explanation: >-
+    The failure you expect and the failure you would see with a broken internet connection look
+    identical, so the experiment needs a control. Running the same command on the default bridge
+    first tells you the host has a working route, which turns the second result into evidence rather
+    than an observation.
+
+- id: q2
+  question: >-
+    With every stack network internal and the model server unreachable from the internet, a request
+    in the browser's network tab still goes to an external host. Where did it come from?
+  options:
+    - From the DNS resolver, which upgrades every plain request into a remote one.
+    - From the model server, which fetches remote assets that the chat interface displays.
+    - From the chat interface's own page, which loaded something the stack never requested.
+    - From Home Assistant, which proxies the asset out through its own network route.
+  correct: 2
+  explanation: >-
+    A container's network policy governs what the container may do, not what the browser does after
+    the page has been served. Anything the page loads — a font, an avatar, a remote help document —
+    leaves from your computer, which is why the network tab rather than the Compose file is the tool
+    that finds these.
+
+- id: q3
+  question: >-
+    Your outbound-blocked test passed for chat, your own files and the voice pipeline. What has that
+    established?
+  options:
+    - That no future update can introduce an outbound call without you noticing it.
+    - That every integration in your Home Assistant instance is now confirmed local-only.
+    - That the stack has no capability to send anything to an external service at all.
+    - That the features you exercised do not need the internet, and nothing beyond that.
+  correct: 3
+  explanation: >-
+    The test describes the stack as it is today, with the features you used today, and that is a
+    real result. It says nothing about a feature you never exercised, which is why the result is
+    worth recording with a feature list and a date rather than as a permanent property.
+
+- id: q4
+  question: >-
+    The test finds that a Home Assistant integration you added last month contacts a weather
+    service. What is the right response?
+  options:
+    - Keep it if you need it, and record it in the security checklist with your reason.
+    - Leave it as it is, because integrations added through the interface are therefore intended.
+    - Block that service on the host, so every integration which uses it stops working.
+    - Remove the integration, because an outbound call always means the feature is unsafe.
+  correct: 0
+  explanation: >-
+    An outbound call is a fact about a feature, not a verdict on it, and a forecast you asked for is
+    a reasonable thing to want. The failure mode is the unrecorded one: a capability nobody decided
+    on, which is why the accepted case is written down with its reason rather than left to memory.

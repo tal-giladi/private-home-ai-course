@@ -128,6 +128,7 @@ because everything below depends on those four lines:
     networks:
       - exposure
     # No volumes and no ports: no models, and nothing published to the host.
+    # (the deploy/resources memory limit in the real file is elided here — it does not affect the lab)
 
   exposure-attacker:
     image: alpine:3.20

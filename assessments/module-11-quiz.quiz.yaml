@@ -1,0 +1,138 @@
+- id: q1
+  question: >-
+    A visitor asks to use the chat interface from their phone while they are on your guest Wi-Fi.
+    What is the accurate description of their situation?
+  options:
+    - They are isolated, so the only risk is that they can see the interface's name on the login page.
+    - They are on a separate network, so the risk is bandwidth rather than access to your stack.
+    - They are on a network that may be able to route to your LAN address, so a published port matters.
+    - They are on a separate network, so nothing you publish on the LAN is visible to them by definition.
+  correct: 2
+  explanation: >-
+    A guest SSID is frequently a separate name over a shared network, and the only way to know which
+    you have is to test it from a device on that SSID against your stack's own address. That is why
+    segmentation is verified in this module rather than assumed from the router's menu.
+
+- id: q2
+  question: >-
+    An advisory says a path traversal in the model server escalates to remote code execution, worst
+    where it runs as root in a container bound to every interface. What does that last clause tell you?
+  options:
+    - That the fix is to run the model server as a non-root user rather than to update it.
+    - That the advisory applies only to versions above the one this course pins.
+    - That the bug only affects Docker users, and is irrelevant to a native installation.
+    - That the severity depends on the deployment, so your Compose file is part of the vulnerability.
+  correct: 3
+  explanation: >-
+    Severity is a property of the bug and the deployment together, and this course controls the
+    deployment deliberately: no published port, and an internal network with no route out. That is
+    the same fact that turns the advisory from an emergency into a line in a monthly log.
+
+- id: q3
+  question: >-
+    A service is attached only to a Docker network declared `internal: true`, and publishes no host
+    port. What is true about it?
+  options:
+    - It is isolated from the internet but reachable by every container on that network.
+    - It is unreachable by anything, including the other containers on the same network.
+    - It is reachable from the host only, because Docker gives internal networks a local gateway.
+    - It is reachable from the internet, because internal networks still forward DNS queries.
+  correct: 0
+  explanation: >-
+    The isolation limits where, not who: containers sharing the network can still talk to each other,
+    which is exactly what the stack needs and exactly what an attacker with one foothold would use.
+    The network has no gateway, so what it removes is the route out, not the reach within.
+
+- id: q4
+  question: >-
+    In the exposure lab, the attacker container lists the model server's inventory successfully and
+    its download attempt fails. What does that combination prove?
+  options:
+    - The model server refuses writes from unknown clients but allows reads.
+    - The lab's internal network removed the route out while leaving local reach intact.
+    - The download failed because the victim container had no model files to overwrite.
+    - The model server requires a credential for writes and not for reads, as its documentation says.
+  correct: 1
+  explanation: >-
+    The documentation is the opposite of that: the API has no authentication at all, so anyone who
+    reaches it can list, pull and delete. What made the write fail is the network the lab runs on,
+    and that is the same control that keeps the real stack from being a relay for anyone who gets
+    into it.
+
+- id: q5
+  question: >-
+    A colleague suggests publishing the model server's port and putting it behind a password-protected
+    proxy. What is the problem with that plan?
+  options:
+    - Password-protected proxies are not supported by the model server's OpenAI-shaped endpoint.
+    - The proxy adds latency to every request, which makes the voice pipeline unusable.
+    - The model server has no authentication of its own, so the proxy is the only thing in the path.
+    - Publishing a port is against the terms of the container registry the image comes from.
+  correct: 2
+  explanation: >-
+    A proxy in front of an unauthenticated API is a real control, but it is one control in one place,
+    and it depends on the proxy being correct, patched and reachable only as intended. The course's
+    answer is cheaper to reason about: the model server publishes nothing, and remote access happens
+    over a VPN instead.
+
+- id: q6
+  question: >-
+    You use a managed mesh VPN so your phone can reach the stack. Which of these is the most accurate
+    statement about what its coordination service can see?
+  options:
+    - Only public addresses, since private addresses and keys never leave your devices.
+    - Your conversations and indexed documents, because it holds the network's decryption keys.
+    - Nothing, because coordination and data transfer happen in entirely separate systems.
+    - Device names, addresses and keys, and when devices were online, but not your traffic.
+  correct: 3
+  explanation: >-
+    The data plane is encrypted end to end and the coordination service never holds the private keys,
+    so it cannot read your chat or your documents. It does hold device metadata, which is a real and
+    acceptable trade for most people, and the reason some run WireGuard on their own router instead.
+
+- id: q7
+  question: >-
+    An advisory for one of your services is newer than your pinned tag, and the service is reachable
+    from your trusted LAN. What is the correct order of work?
+  options:
+    - Take a backup, bump one tag, redeploy, run the check, smoke-test it, and record the result.
+    - Remove the published port first, then wait for a fixed release before patching anything.
+    - Downgrade to a version the advisory does not mention, since older means less exposed.
+    - Update during the next monthly window, since the risk only changes at month boundaries.
+  correct: 0
+  explanation: >-
+    Reachability on your LAN moves this from a scheduled item to today's work, and the order matters:
+    a known-good backup first, one tag at a time so you can attribute any breakage, then the check
+    and a three-part smoke test, and a row in the log either way. Downgrading to an unmentioned
+    version is how people end up on something older and less patched.
+
+- id: q8
+  question: >-
+    A blog post recommends `docker compose pull && docker compose up -d` as a weekly routine for
+    staying current. What is wrong with it for a home stack?
+  options:
+    - It cannot work without administrator rights on most Docker installations.
+    - It moves every service to whatever is published, including breaking and vulnerable versions.
+    - It conflicts with the restart policy and stops services that are running correctly.
+    - Nothing; pulling images is the only supported way to receive security updates.
+  correct: 1
+  explanation: >-
+    The convenience of that one-liner is exactly the problem: an unpinned tag means a working stack
+    becomes an unknown one on a day nobody chose. Pinning each tag, updating one at a time and
+    reading the notes is slower, and it is the difference between a rollback and an incident.
+
+- id: q9
+  question: >-
+    A model you want is offered as a `.pth` file by an account with no other releases, and it scores
+    better than the one you use. What is the correct conclusion?
+  options:
+    - Install it, because a better score on your own tasks outweighs any provenance question.
+    - Install it inside a container, since the container limits what the loaded file can do.
+    - Do not install it, because these formats execute code while loading and the publisher is unknown.
+    - Convert it to GGUF first, because the converted file is the one you would actually run.
+  correct: 2
+  explanation: >-
+    Pickle-based formats run arbitrary Python during deserialisation, before any weights are read, and
+    a container only limits what that code can reach rather than stopping it running. Converting does
+    not help either: the conversion produces a new file from an input you still cannot account for,
+    so the unknown travels with the bytes.

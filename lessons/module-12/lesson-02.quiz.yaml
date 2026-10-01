@@ -1,0 +1,60 @@
+- id: q1
+  question: >-
+    You are writing the monthly backup routine for this stack. Which pair of statements is correct?
+  options:
+    - Home Assistant's configuration volume belongs in it, and model files do not.
+    - The model volume belongs in it, and Home Assistant's configuration does not.
+    - Both belong in it, since neither can be rebuilt once the tags stop resolving.
+    - Neither belongs in it, since a pull and a fresh onboarding rebuild everything.
+  correct: 0
+  explanation: >-
+    Models are large, public and addressed by a tag that resolves, so copying them buys nothing and
+    can cost the disk space your real archives need. Your automations, chat history and index choice
+    exist nowhere else, which is what makes them the thing a backup is for.
+
+- id: q2
+  question: >-
+    You archive a service's data volume while that service is still running and writing to its
+    database. What is the risk you have taken on?
+  options:
+    - The archive is locked, so the command fails outright with a permission error.
+    - The archive may be internally inconsistent and only fail later, when it is extracted.
+    - The archive also captures the live log file, making it much larger than you expected.
+    - The archive is encrypted, because a read-only mount changes how the data is written.
+  correct: 1
+  explanation: >-
+    Copying a database out from under a writer produces a file that exists, has a plausible size and
+    is corrupt, which is the worst combination available. Stopping the service first costs a few
+    seconds and is the difference between a backup and a hope.
+
+- id: q3
+  question: >-
+    The restore drill writes into a volume named `homelab-ha-config-restore` rather than the real
+    one. Why is that the right way to run the drill?
+  options:
+    - Because Docker will not extract an archive into a volume that a container is using.
+    - Because a differently named volume uses a different filesystem, which is the point.
+    - So the original data survives, and the new stack proves the archive rather than the old data.
+    - Because Compose rejects an override whose volume name differs from the base file's.
+  correct: 2
+  explanation: >-
+    Restoring over the top of live data can succeed using what was already there, which proves
+    nothing. A separate volume with the same mount target gives you the same restore path and the
+    same startup behaviour, while the original stays intact until the destructive version, which you
+    only run once this one has passed.
+
+- id: q4
+  question: >-
+    A colleague's backup script has run every night for a year and has never been restored from. How
+    should that be described?
+  options:
+    - Safe enough, since an untested backup is still better than having no backup at all.
+    - Retired, because a routine that is never verified is worse than doing it by hand.
+    - Proven, because a year of successful runs is a year of evidence in its favour.
+    - Untested, because a backup is only known to work once something has been restored from it.
+  correct: 3
+  explanation: >-
+    A year of successful runs proves the script runs, not that the archives contain what you think
+    they contain — the two failures that matter, an empty archive and a corrupt database, both
+    surface only at restore time. Listing the archive takes twenty seconds and catching a real
+    failure before the bad week is the entire value of the habit.

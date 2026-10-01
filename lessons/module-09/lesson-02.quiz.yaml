@@ -1,0 +1,58 @@
+- id: q1
+  question: >-
+    A satellite runs but never hears anything, and the wake word service shows no detection events.
+    What is the most likely cause?
+  options:
+    - The satellite needs Home Assistant's port published on every interface rather than loopback.
+    - The wake word model has not finished downloading from its model registry.
+    - The wake word service is on an internal network the satellite cannot reach.
+    - The satellite was started with a microphone argument that does not match the platform's audio system.
+  correct: 3
+  explanation: >-
+    Each platform names its capture system differently, and asking for the wrong one usually produces
+    silence rather than an error — so the satellite runs, hears nothing, and every symptom looks like
+    a wake word problem. Try the alternative argument before changing anything else.
+
+- id: q2
+  question: >-
+    Why does the course run the satellite natively on the host while every other voice service runs
+    in a container?
+  options:
+    - A container cannot open the host's microphone without extra plumbing that is fragile on desktop.
+    - The Wyoming protocol only connects processes on the same machine.
+    - Home Assistant requires the satellite to run as a non-root process on the host.
+    - Containers cannot publish a port, so the satellite has to run outside Docker.
+  correct: 0
+  explanation: >-
+    Audio can be handed to a container, but capturing the host's microphone from inside one needs a
+    virtual audio device and, on Windows, a permission dance. Everything that never touches hardware
+    belongs in Compose, where isolation and version pinning are worth having.
+
+- id: q3
+  question: >-
+    Every spoken command is transcribed as "turn on the kitch". What is the most likely cause?
+  options:
+    - The wake word detector is too sensitive and fires on the beginning of unrelated speech.
+    - The satellite's pre-roll buffer is too short, so the start of the sentence is discarded.
+    - The speech-to-text model cannot recognise words of fewer than six letters.
+    - Home Assistant is trimming the transcript to a fixed maximum length.
+  correct: 1
+  explanation: >-
+    Detection necessarily happens slightly after the words were spoken, so a satellite must keep a
+    short rolling buffer of what came before. Too little of it and the first syllable is gone
+    before transcription starts, which is exactly the shape of this symptom.
+
+- id: q4
+  question: >-
+    The pipeline works perfectly from a typed sentence and fails from speech. Where should you
+    look first?
+  options:
+    - The text-to-speech service, because it must be playing something for the wake word to respond.
+    - The conversation agent, because typed text reaches it differently from a transcript.
+    - The satellite or the microphone, not the containers.
+    - The intent matcher, because transcripts carry punctuation that typed input does not.
+  correct: 2
+  explanation: >-
+    Every stage after the audio is identical for both routes, so a difference between them localises
+    the fault to the one stage that differs: capture. The containers have not changed behaviour and
+    should not be the first place you look.

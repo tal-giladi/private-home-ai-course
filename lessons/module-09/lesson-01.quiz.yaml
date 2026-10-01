@@ -1,0 +1,60 @@
+- id: q1
+  question: >-
+    Your wake word fires twice in an evening while nobody is speaking to it. Which change most
+    directly addresses the underlying problem?
+  options:
+    - Move the microphone closer to the speaker, which reduces background noise at the source.
+    - Lower the detection threshold, so it catches more real utterances.
+    - Raise the detection threshold, or train a custom model including your room's noise.
+    - Shorten the pre-roll audio buffer, so the detector has less audio to misread.
+  correct: 2
+  explanation: >-
+    False accepts are the failure that ends the feature, and the lever is sensitivity: raising the
+    threshold trades accepts for misses. A custom model trained on your own audio including the
+    television and the extractor fan fixes both numbers at once, where the other options either
+    worsen the symptom or address a different failure.
+
+- id: q2
+  question: >-
+    Why does this course suggest press-to-talk as a legitimate answer rather than a compromise?
+  options:
+    - Press-to-talk is what Home Assistant recommends for Raspberry Pi devices.
+    - Press-to-talk is faster than any wake word because it skips the detection stage.
+    - Press-to-talk avoids the need for any speech-to-text model in the pipeline.
+    - Press-to-talk has a zero false-accept rate, which matters on a machine too small to be careful.
+  correct: 3
+  explanation: >-
+    Press-to-talk trades hands-free operation for certainty, and on a small always-on machine that
+    is a good trade: an always-on listener competes for CPU and RAM with everything else in the
+    pipeline. A dashboard button costs one RAM budget and nothing can misfire at three in the morning.
+
+- id: q3
+  question: >-
+    You train a custom wake word model using two hours of your voice in a quiet room. It then
+    ignores you in the kitchen with the extractor fan on. What went wrong?
+  options:
+    - Training contained no examples of the background noise, so it learned that noise means silence.
+    - Custom models only work within a few metres of the training microphone position.
+    - The wake word service needs the model reloaded after training, and was serving the old one.
+    - The model was trained on too little audio to recognise your voice at all.
+  correct: 0
+  explanation: >-
+    The negatives are the training. A model that has never heard an extractor fan will treat its
+    spectral signature as background, so include the rooms, the distances and the appliances you
+    actually live with. The failure looks like a recogniser problem and is a data-collection problem.
+
+- id: q4
+  question: >-
+    The first syllable of your command is missing from the transcript after the wake word fires.
+    What is the likely cause?
+  options:
+    - The wake word model is too sensitive and fires on the first syllable of unrelated speech.
+    - The satellite does not keep a pre-roll buffer, so the detector starts recording after the speech began.
+    - The speech-to-text model has a one-second minimum window and drops anything shorter.
+    - The wake word and the speech model are on different networks, so the first packets are lost.
+  correct: 1
+  explanation: >-
+    A detector that only starts recording when it fires has already thrown away the beginning of the
+    sentence, because detection necessarily happens a little after the words were spoken. Every
+    implementation therefore keeps a short rolling pre-roll buffer, and a missing first syllable is
+    the symptom of that buffer being too short or absent.

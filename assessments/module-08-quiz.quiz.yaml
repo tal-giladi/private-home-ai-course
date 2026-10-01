@@ -1,0 +1,131 @@
+- id: q1
+  question: >-
+    You start the Whisper container directly rather than through its Compose profile, and Home
+    Assistant discovers no Wyoming integration. What is the explanation?
+  options:
+    - Wyoming services only answer discovery requests from the default bridge network.
+    - The service is running outside the stack's network, so Home Assistant never sees it advertise.
+    - Home Assistant requires the service to publish a host port to be discoverable.
+    - Discovery is disabled until the service has handled one request successfully.
+  correct: 1
+  explanation: >-
+    Discovery is a broadcast on the network the service is attached to. Started outside the stack,
+    the service is not on the voice network at all, so nothing advertises itself. The habit worth
+    forming is to always pass the profile rather than naming a service on its own.
+
+- id: q2
+  question: >-
+    Whisper returns a fluent, confident transcript of a command spoken in a language it was not
+    configured for. What is the actual behaviour?
+  options:
+    - The intent matcher translates the transcript before attempting to match it.
+    - Whisper detects the language and translates the speech into the configured language.
+    - Whisper transcribes using its configured language and produces confident nonsense when it cannot.
+    - Whisper returns an empty transcript when it does not recognise the language.
+  correct: 2
+  explanation: >-
+    Whisper transcribes rather than translates and does not refuse, so a language mismatch produces
+    a plausible transcript that the pipeline then acts on. That is why the failure gets reported as
+    a broken model rather than as a configuration error.
+
+- id: q3
+  question: >-
+    Home Assistant's own figures put Whisper at around eight seconds per command on a Raspberry Pi
+    4 and under a second on an Intel NUC. What does that say about choosing a model size?
+  options:
+    - The model size matters less than the machine, so pick the largest that fits in memory.
+    - Only Intel processors can run Whisper at a speed a person will tolerate.
+    - Whisper is unsuitable for local voice, so a cloud service should be used instead.
+    - Model size must be chosen against the hardware you have, not against a quality ranking.
+  correct: 3
+  explanation: >-
+    A twenty-fold spread from the hardware alone makes the ranking of model sizes meaningless on its
+    own. The practical rule is to pick the smallest model that recognises your actual commands on the
+    machine you own, and verify it from recorded files before involving a microphone.
+
+- id: q4
+  question: >-
+    Your measured pipeline is 1.2 seconds for built-in intents and 6.8 seconds for the language
+    model fallback. What should you write down?
+  options:
+    - The intent path meets its two-second target and the model path misses its five-second target.
+    - Both paths meet the targets, because the targets only cover the first word of audio.
+    - The intent path is the bottleneck, because a hundred milliseconds should be instant.
+    - The pipeline is broken, because both paths should fit inside two seconds.
+  correct: 0
+  explanation: >-
+    The course's figures are goals and your numbers are the result. A fast path that meets its target
+    and a slow path that misses its own is a working system with a clear next instruction, which is
+    far more useful than a verdict of broken or fixed.
+
+- id: q5
+  question: >-
+    Which change is most likely to help a pipeline whose slowest stage is speech-to-text?
+  options:
+    - Raising the end-of-speech silence threshold on the satellite.
+    - Using a smaller speech-to-text model, or Speech-to-Phrase for the fast path.
+    - Lowering the text-to-speech quality tier from medium to low.
+    - Exposing fewer entities to the conversation agent.
+  correct: 1
+  explanation: >-
+    Each stage has its own lever, and a smaller speech model or a closed-vocabulary recogniser is the
+    one that acts on speech-to-text. Voice quality and entity exposure address different stages
+    entirely, and the silence threshold affects detection rather than transcription.
+
+- id: q6
+  question: >-
+    Why does the course require reading the licence of each Piper voice individually?
+  options:
+    - Voices are updated more often than the engine, so their terms change more often too.
+    - Voices are larger than the engine, so they are more likely to embed licensed recordings.
+    - Each voice is a separate recorded work with its own terms that the engine's licence does not cover.
+    - Piper's engine carries no licence, so the voice licence is the only one that applies.
+  correct: 2
+  explanation: >-
+    The voice repository holds hundreds of contributed voices under MIT, CC-BY and whatever terms
+    their donors chose. Running one at home is fine under almost any of them; shipping one is a
+    different question, and the engine's licence does not answer it.
+
+- id: q7
+  question: >-
+    A household says the assistant's voice "sounds off" while every measurement looks fine. What does
+    the course recommend?
+  options:
+    - Raise the quality tier, since the problem is intelligibility rather than preference.
+    - Slow the voice down, since unusual pacing usually reads as wrong.
+    - Change the text-to-speech engine, since the voice choice cannot be the cause.
+    - Try three voices and have someone else listen to a refusal, then choose together.
+  correct: 3
+  explanation: >-
+    Voice is a shared preference or it is not a preference at all, and no benchmark captures it.
+    Listening to a refusal rather than a greeting matters most, because that is the reply a
+    household hears whenever something has gone wrong.
+
+- id: q8
+  question: >-
+    Why does the satellite run natively on the host while Whisper and Piper run in containers?
+  options:
+    - A container cannot reach a laptop microphone without plumbing that is complex and fragile.
+    - Containers cannot open network sockets, so satellite traffic must stay on the host.
+    - Home Assistant requires the satellite to run outside Docker for licensing reasons.
+    - Wyoming services cannot bind to a published host port.
+  correct: 0
+  explanation: >-
+    Audio can be passed into a container, but capturing the host's microphone from inside one needs a
+    virtual audio device and, on Windows, a permission dance worth avoiding. The services that touch
+    no hardware run in containers, where isolation and version pinning are worth having.
+
+- id: q9
+  question: >-
+    You time the whole command once and record a single number per run, varying between one and nine
+    seconds. What is missing from that measurement?
+  options:
+    - The network time, which the end-to-end figure includes and should be subtracted.
+    - A per-stage breakdown, which is the only way to identify which stage to change.
+    - A quality setting for text-to-speech, which belongs in the timing table.
+    - The model name, since timings from different models cannot be compared.
+  correct: 1
+  explanation: >-
+    The breakdown's value is that it points at a cause, and the causes have different fixes. The
+    spread also says something a median hides: a long tail is what makes a voice system feel
+    unreliable, so counting runs over budget is more informative than averaging them.

@@ -1,0 +1,62 @@
+- id: q1
+  question: >-
+    Why does this course ban the `latest` tag in the Compose file, when a pinned version means
+    more maintenance?
+  options:
+    - Because unpinned tags stop resolving once a registry rebuilds the image.
+    - Because a restart would load whatever was published that day, unread and unchosen.
+    - Because tagged versions cannot be rolled back once a container has been created.
+    - Because registries delete old tags, so a pinned image eventually becomes unavailable.
+  correct: 1
+  explanation: >-
+    An unpinned tag is a standing decision to run whatever exists at the next start, on a machine
+    meant to be always-on and holding state you care about. Pinning also makes the CVE question
+    answerable by comparing two version numbers, which is worth considerably more than the
+    convenience it costs.
+
+- id: q2
+  question: >-
+    An advisory affects the model server, your copy is below the fixed version, and the service has
+    no published port and sits on an internal network. What is the right response?
+  options:
+    - Update today, because an internal network is not a control the service can rely on.
+    - Do nothing until it becomes reachable, since the internal network is not access control.
+    - Schedule it for the monthly window and record the reachability answer in the log.
+    - Roll the model server back, since the fixed version is the one with the problem.
+  correct: 2
+  explanation: >-
+    Reachability decides urgency, not whether to update, and an internal network with no published
+    port means the precondition in most advisories cannot currently be met. Recording that answer is
+    what makes the decision defensible later, because reachability is a property of the deployment
+    and deployments change.
+
+- id: q3
+  question: >-
+    You want to know whether an Open WebUI advisory applies to the stack you actually run. What is
+    the fastest reliable way to settle it?
+  options:
+    - Check whether the release notes mention authentication or code execution at all.
+    - Read the advisory's list of affected versions and assume they match your setup.
+    - Search for the identifier and use whichever summary of it explains things most clearly.
+    - Compare the advisory's fixed version against the tag pinned in your own Compose file.
+  correct: 3
+  explanation: >-
+    Pinning exists so that this question is answerable in seconds rather than by reading prose. The
+    remaining two tests — is the component running, and could anyone reach it — are quick, and they
+    are the two that turn a version comparison into a decision.
+
+- id: q4
+  question: >-
+    A `.pth` file from an account with no other releases scores better than the model you use. What
+    do the four provenance checks have to say about it?
+  options:
+    - That provenance is unestablished, so a good score does not authorise installing it.
+    - That it is acceptable if you restrict it to the tasks you already scored it on.
+    - That it is fine once converted to GGUF, because conversion removes any payload.
+    - That it is safe, since the file format alone decides whether code runs while loading.
+  correct: 0
+  explanation: >-
+    Your evaluation measures output quality, while provenance is about what runs when the file is
+    parsed, and a pickle executes code before a single weight is read. A format conversion is not a
+    check either: it produces a GGUF from a file you still cannot account for, so the unknown simply
+    travels with the bytes.

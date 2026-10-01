@@ -1,0 +1,133 @@
+- id: q1
+  question: >-
+    Your conversation agent works with three exposed entities and degrades after you expose twenty
+    more. What is the most likely cause?
+  options:
+    - The model was replaced with a smaller one to fit inside a longer context.
+    - More similar tools make the choice harder, and the longer prompt costs processing time.
+    - Home Assistant silently truncates the entity list at twenty-five items.
+    - The model server reloads its prompt on every request once the list exceeds a threshold.
+  correct: 1
+  explanation: >-
+    Every exposed entity is another tool in the prompt: more tokens before the first word, and more
+    near-identical candidates to choose between. Home Assistant's own guidance is to keep the list
+    small, and this is the Module 2 arithmetic reappearing where the stakes are higher.
+
+- id: q2
+  question: >-
+    Why does the pipeline try a built-in intent before handing a sentence to the model?
+  options:
+    - Intents are the only path that works while the speech model is still loading.
+    - Intents produce shorter replies, so text-to-speech has less work.
+    - An intent that cannot match does nothing, whereas a model that is unsure can still act.
+    - A conversation agent cannot be configured to run after intent matching.
+  correct: 2
+  explanation: >-
+    The failure modes are asymmetric, and that asymmetry is the whole argument: a failed intent is
+    inert while a failed tool call is an action in your house. The fast deterministic path should get
+    first refusal on anything it can handle completely.
+
+- id: q3
+  question: >-
+    "Turn off everything" matches a built-in intent, but that intent does not include the heating.
+    What is the correct behaviour?
+  options:
+    - Run the intent first and then the model, applying both meanings.
+    - Run the intent, since a partial match still covers most of what was asked.
+    - Refuse, because no intent matched the complete meaning of the sentence.
+    - Fall through to the model so the rest of the sentence is handled.
+  correct: 3
+  explanation: >-
+    A partial match is the dangerous case, because the system acts on less than you meant. Falling
+    through lets the model complete the meaning; running both risks doing more than was asked, which
+    is worse than either alternative.
+
+- id: q4
+  question: >-
+    Your hybrid pipeline produces the same wrong-action count as the model alone. What does that
+    suggest?
+  options:
+    - The intents are not being matched first, so the model handles sentences they should have.
+    - Speech-to-text is producing sentences no intent can match.
+    - The exposure list is too short for the intent matcher to find entities.
+    - The model is too small for the tool set and should be replaced.
+  correct: 0
+  explanation: >-
+    The hybrid exists so the fast path handles what it can, so no improvement over model-only means
+    it is not running first. Check the pipeline's stage order before spending anything on a model
+    change, which is the more expensive thing to alter.
+
+- id: q5
+  question: >-
+    Which change most reliably stops a model being able to unlock your front door?
+  options:
+    - Lowering the temperature to zero, so the decision becomes deterministic.
+    - Exposing a script that asks for confirmation, instead of exposing the lock itself.
+    - Using a larger model, which follows system instructions more reliably.
+    - Adding an instruction to the system prompt forbidding it.
+  correct: 1
+  explanation: >-
+    Exposing a wrapper removes the capability rather than asking the model to abstain from it: the
+    model can request your script and nothing else, because the raw unlock tool is not exposed.
+    Prompts, temperature and model size change behaviour, and none of them changes what the model
+    is able to do.
+
+- id: q6
+  question: >-
+    You report a 90% success rate across thirty commands and enable the model path. Why is that
+    insufficient?
+  options:
+    - Thirty commands is too small a sample for the rate to be meaningful.
+    - The rate must be measured on spoken commands, since typed ones are easier for the model.
+    - A success rate hides wrong actions, which are the only outcomes with a physical consequence.
+    - Success and refusal rates must be averaged before they can be compared.
+  correct: 2
+  explanation: >-
+    "It worked 90% of the time" and "it unlocked the door once" are both true about the same system,
+    and only one of them matters physically. The scoring sheet keeps correct, wrong action, refused
+    and missed in separate columns precisely so that this cannot be averaged away.
+
+- id: q7
+  question: >-
+    Your assistant repeatedly turns on the bedroom heater when asked about the hallway. What is the
+    most useful first action?
+  options:
+    - Lower the temperature, since confident mistakes usually come from sampling.
+    - Combine both heaters into one scene, so choosing wrongly stops mattering.
+    - Replace the model, since this is a capability failure rather than a naming one.
+    - Read the tool call and check whether the two entities have similar names or no area assigned.
+  correct: 3
+  explanation: >-
+    Similar names and missing areas are the most common cause of a wrong but understandable choice,
+    and the fix is an alias or an area rather than a model change. Reading the call first also
+    distinguishes a selection problem from a scale problem, which have completely different fixes.
+
+- id: q8
+  question: >-
+    A spoken question over your own documents takes nine seconds to begin answering, against one
+    second for a spoken command. What is the dominant cost?
+  options:
+    - The retrieved prompt, because prompt processing is much slower than generation on a CPU.
+    - Text-to-speech, because it synthesises the entire answer before playing any of it.
+    - The wake word detector, because it never stops running.
+    - Retrieval, because the search cost scales with the number of documents indexed.
+  correct: 0
+  explanation: >-
+    Retrieval is milliseconds and Piper streams. The wait is thousands of prompt tokens going
+    through a model at a compute-bound rate — and it is also the one stage a setting can reduce, by
+    returning fewer chunks, which is why `RAG_TOP_K` is the first thing to change.
+
+- id: q9
+  question: >-
+    Your assistant refuses almost everything and people have stopped trying. What is the right
+    response?
+  options:
+    - Accept it, because a cautious assistant is always preferable to a capable one.
+    - Add back the specific things you want by name, widening the list deliberately.
+    - Lower the speech model's threshold, so it is more willing to act.
+    - Expose every entity, so the model can find alternatives to the ones it avoids.
+  correct: 1
+  explanation: >-
+    Caution is a valid configuration, but only a deliberate one. Widening the list one named entity
+    at a time keeps the safety property, restores usefulness, and leaves a written record of what you
+    chose and why — which is what the capstone rubric asks for.

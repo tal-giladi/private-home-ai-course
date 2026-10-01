@@ -1,0 +1,62 @@
+- id: q1
+  question: >-
+    You move Home Assistant to a separate machine, and it cannot reach the model server. What is the
+    most likely cause?
+  options:
+    - The internal Docker network has no gateway, so cross-machine traffic is refused.
+    - The chat interface is the only service with a published port in the Compose file.
+    - The model server's port is not published, so the new host has no path to it.
+    - The model server is bound to the container's loopback, so nothing outside can answer.
+  correct: 2
+  explanation: >-
+    Publishing a port is the mechanism by which the host offers a container's port to other
+    machines, and the course deliberately has none for the model server. The fix is a single
+    published address rather than a general one, and it is the only deliberate exposure in the
+    course, which is why it belongs at the very end.
+
+- id: q2
+  question: >-
+    You write the binding as an all-interfaces address in your override file instead of a specific
+    LAN address. What changes?
+  options:
+    - The port is published twice, and Docker keeps whichever binding it reads first.
+    - The service is published on no interface, so the separate machine loses its connection.
+    - Nothing; the two forms publish the same port on the same interface.
+    - The service is published on every interface, including the guest network and the tailnet.
+  correct: 3
+  explanation: >-
+    Binding to a specific address attaches the socket to one interface, while binding to every
+    interface attaches it to all of them, and the guest network is one of them. That is the
+    difference between a model server your trusted machines can use and one that a cheap bulb on
+    your guest Wi-Fi can use as well.
+
+- id: q3
+  question: >-
+    After the deliberate publish, `homelab.py doctor` reports the model server's port as reachable
+    from your network. How should you treat that line?
+  options:
+    - Record the exception in the checklist with the address and the reason you published it.
+    - Remove the health check, since the warning comes from the health check failing.
+    - Fix it immediately, because a warning in doctor always means a real exposure.
+    - Ignore it entirely, because the check is only accurate on Windows hosts.
+  correct: 0
+  explanation: >-
+    The check compares a port against your machine's own addresses and cannot tell a trusted LAN
+    address from an internet-reachable one, so it is being conservative rather than wrong. The
+    thing that turns a warning into a control is writing down the address and the reason, so the
+    next person can tell a decision from an accident.
+
+- id: q4
+  question: >-
+    Which reason does this course give for not putting Proxmox on the course path?
+  options:
+    - It is not free software, and its licence forbids a private home installation.
+    - It needs a spare machine, it wipes that machine, and it splits the RAM you are short of.
+    - It cannot run Docker, so the stack from Module 3 could not be reused unchanged.
+    - It is too slow on a CPU-only machine compared with running the services directly.
+  correct: 1
+  explanation: >-
+    The three reasons are a machine you are currently using, data that has to go somewhere first,
+    and memory divided between virtual machines on a box that never had much to spare. It is not a
+    judgment about Proxmox: on a genuinely spare machine it is a good answer, and the path from
+    there to this course's stack is unchanged.

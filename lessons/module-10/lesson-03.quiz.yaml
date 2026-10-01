@@ -1,0 +1,60 @@
+- id: q1
+  question: >-
+    Your model's misfire rate is reported as a 90% success rate on thirty commands. Why is that
+    figure not enough to decide what to expose?
+  options:
+    - The rate should be measured on spoken commands rather than typed ones.
+    - Success rates must be averaged with refusal rates before they mean anything.
+    - Thirty commands is too small a sample for any useful rate.
+    - A success rate hides wrong actions, which are the only outcomes with a safety consequence.
+  correct: 3
+  explanation: >-
+    "It worked 90% of the time" and "it unlocked the door once" are both true statements about the
+    same system. Only the second carries a physical consequence, so the number worth measuring is
+    wrong actions divided by commands — which is why the scoring sheet has four columns.
+
+- id: q2
+  question: >-
+    Which change most reliably prevents a model from being able to unlock your front door?
+  options:
+    - Exposing a script that asks first, instead of exposing the lock entity itself.
+    - Using a larger model, which follows instructions more reliably.
+    - Lowering the temperature to zero, which removes the randomness from the decision.
+    - Adding an instruction to the system prompt saying it must never unlock the door.
+  correct: 0
+  explanation: >-
+    Exposing a wrapper removes the capability rather than asking the model to abstain from it. The
+    model can only request your script; it cannot construct the raw unlock call, because no such tool
+    exists. Prompts, temperature and model size change behaviour, and none of them changes what the
+    model is able to do.
+
+- id: q3
+  question: >-
+    Your assistant consistently turns on the bedroom heater when asked about the hallway. What is
+    the most useful first response?
+  options:
+    - Add both heaters to a scene, so the wrong choice stops mattering.
+    - Read the tool call in the log, and check whether the two entities have similar names or no area.
+    - Lower the temperature, since confident mistakes usually come from sampling.
+    - Replace the model with a larger one, since this is a capability failure.
+  correct: 1
+  explanation: >-
+    Two entities with similar names and no area assigned is the most common cause of a wrong-but-
+    understandable choice, and it is fixed with an alias or an area rather than with a model change.
+    Reading the call first also tells you whether this is a selection problem or a scale problem,
+    which have different fixes entirely.
+
+- id: q4
+  question: >-
+    Your assistant refuses almost everything, and people have stopped asking it things. What is the
+    right response?
+  options:
+    - Accept it, because a cautious assistant is always better than a capable one.
+    - Expose more entities, so the model has alternatives to the ones it avoids.
+    - Add back the specific things you want by name, widening the list deliberately.
+    - Lower the detection threshold, so it is more willing to act.
+  correct: 2
+  explanation: >-
+    A cautious assistant is a valid configuration, but only if it is a deliberate one. Widening the
+    list one named entity at a time keeps the safety property while restoring usefulness, and it
+    leaves a record of what you chose and why — which is what the capstone rubric asks for.

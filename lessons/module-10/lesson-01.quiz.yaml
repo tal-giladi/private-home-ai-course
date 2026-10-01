@@ -1,0 +1,58 @@
+- id: q1
+  question: >-
+    Your conversation agent works with three exposed entities and gets worse after you expose
+    twenty more. What is the most likely cause?
+  options:
+    - The model was swapped for a smaller one to fit the longer prompt.
+    - More similar tools make the choice harder, and the longer prompt costs processing time.
+    - Home Assistant caps the entity list at twenty-five and silently truncates the rest.
+    - The model server reloads the tool list on every request once it exceeds a size threshold.
+  correct: 1
+  explanation: >-
+    Every exposed entity is another tool in the prompt: more prompt tokens before the first word, and
+    more near-identical candidates to choose between. Home Assistant's own guidance is to keep the
+    list small, and this is the Module 2 bandwidth arithmetic showing up in a new place.
+
+- id: q2
+  question: >-
+    Which address should Home Assistant use to reach a model server running as a service in the same
+    Compose network?
+  options:
+    - The host's LAN address, with the port published for every device on the network.
+    - http://127.0.0.1:11434, so the request stays on the local machine.
+    - http://ollama:11434, resolved by Docker's embedded DNS on the internal network.
+    - http://host.docker.internal:11434, so the container reaches the host directly.
+  correct: 2
+  explanation: >-
+    Both services are on the same internal network, where Docker resolves service names. Loopback
+    inside a container means that container; the LAN address would mean publishing an unauthenticated
+    API to every device on your Wi-Fi, which is the decision Module 11 is about.
+
+- id: q3
+  question: >-
+    What does a conversation agent actually do with your sentence?
+  options:
+    - It queries Home Assistant's database for entities whose names resemble the sentence.
+    - It rewrites the sentence into a command grammar and then matches it.
+    - It matches the sentence against a fixed grammar and runs the matching intent.
+    - It reads the sentence alongside the available tools and emits a structured request to run one.
+  correct: 3
+  explanation: >-
+    A conversation agent does not match a phrase; it decides. It emits a tool call with a function
+    name and arguments, and Home Assistant validates and runs it. That boundary — the model proposes,
+    the system disposes — is what makes a wrong decision recoverable rather than undefined.
+
+- id: q4
+  question: >-
+    A conversation agent chats fluently about your home but never changes anything, in any
+    conversation. What is the most likely cause?
+  options:
+    - The model in use cannot emit tool calls, so nothing is ever proposed.
+    - The entities are not exposed to the assistant, so there is nothing to call.
+    - The text-to-speech service is not configured for the assistant.
+    - The model has no record of the exposed entity list in its context.
+  correct: 0
+  explanation: >-
+    A model without tool-calling support will happily discuss actions without ever proposing one,
+    and nothing in a fluent reply indicates the gap. Verify the capability for the specific model you
+    are running rather than trusting a model card.

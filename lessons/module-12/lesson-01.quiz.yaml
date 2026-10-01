@@ -1,0 +1,61 @@
+- id: q1
+  question: >-
+    A container exits with code 137 immediately after a long chat answer, and its own log ends with
+    no error message. What most likely happened?
+  options:
+    - Its health check failed three times, so Compose shut the service down deliberately.
+    - The log file reached its size ceiling and the driver closed the output stream.
+    - The image was built for a different CPU architecture and could not start.
+    - The container exceeded its memory limit and the kernel killed it from outside.
+  correct: 3
+  explanation: >-
+    Weights plus a KV cache for a long context can exceed a limit that looks generous for short
+    prompts, and the kill comes from the kernel rather than from the process, which is why the
+    application's own log stays silent. Exit code 137 is the tell, and the fix is in the limit
+    rather than in the service.
+
+- id: q2
+  question: >-
+    Your tool model and chat model have different names in `.env`, and voice commands are noticeably
+    slower whenever a long chat answer is generating. What is the mechanism?
+  options:
+    - The model was unloaded when its keep-alive expired and has to be loaded from disk again.
+    - The voice pipeline is competing for CPU with the chat interface's title and tag generation.
+    - The health check delays each request until the model server reports itself healthy.
+    - Two models must stay resident at once, so each request waits for the other to finish.
+  correct: 0
+  explanation: >-
+    With a single model slot, the second model evicts the first, and both the eviction and the load
+    cost seconds. Using one model for both jobs — which is what the course's defaults already do —
+    removes the swap entirely, and it is the single cheapest fix for a machine that must serve chat
+    and voice at the same time.
+
+- id: q3
+  question: >-
+    A container is marked unhealthy by its health check, keeps running, and serves nothing useful.
+    Why is nothing being done about it automatically?
+  options:
+    - Because the service needs a manual restart to pick up a new health check definition.
+    - Because a health check only reports status, while a restart policy acts on process exit.
+    - Because a failed health check is retried indefinitely before anything is done about it.
+    - Because the check interval is longer than the container's restart backoff period.
+  correct: 1
+  explanation: >-
+    The health check is a signal, for Compose and for you, rather than a self-healing mechanism: it
+    flips a status field and nothing more. Only the container actually exiting triggers the restart
+    policy, which is why a hung-but-alive service is the case you have to notice yourself.
+
+- id: q4
+  question: >-
+    You delete the `logging` block from a service to tidy up the Compose file. What follows on a
+    machine that runs for months without attention?
+  options:
+    - Logging moves into the container's writable layer and is cleared on every restart.
+    - Output goes to the host's syslog instead, so nothing accumulates on the disk itself.
+    - The json-file driver has no size limit, so the disk fills with logs over time.
+    - Container output is discarded, so `docker compose logs` shows only the latest restart.
+  correct: 2
+  explanation: >-
+    The json-file driver's defaults impose no ceiling, so a chatty service writes until something
+    else fails, and the first visible symptom is usually the whole machine slowing down rather than
+    anything logging. Three files of 10 MB per service is a limit you can set once and forget.

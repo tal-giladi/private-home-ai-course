@@ -1,0 +1,58 @@
+- id: q1
+  question: >-
+    The Wyoming speech-to-text service returns confident, fluent nonsense for a command in a
+    language it was not configured for. What is happening?
+  options:
+    - The intent matcher is translating the transcript into a different language before matching.
+    - Whisper has no built-in language detection and always transcribes using its configured language.
+    - The audio is too quiet for the model to recognise the language, so it falls back to noise.
+    - The text-to-speech service is generating the wrong language and corrupting the transcript.
+  correct: 1
+  explanation: >-
+    Whisper transcribes, it does not translate, and it does not refuse. Given a language it does
+    not understand, it produces a plausible transcript in that language rather than an error, which
+    is why a language mismatch reads downstream as a model problem.
+
+- id: q2
+  question: >-
+    Why does the satellite run natively on the host while the speech services run in containers?
+  options:
+    - Home Assistant requires the satellite to run as a non-root user on the host.
+    - Containers cannot open network sockets, so the satellite has to run natively.
+    - A container cannot reach a laptop microphone without extra plumbing, and that plumbing is complex.
+    - The Wyoming protocol only works between processes on the same machine.
+  correct: 2
+  explanation: >-
+    Audio can be passed into a container, but capturing the host's microphone from inside one needs
+    a virtual audio device and, on Windows, a permission dance that is not worth any learner's
+    time. The services that do not touch hardware run in containers where isolation and versioning
+    are worth having.
+
+- id: q3
+  question: >-
+    `docker compose up -d wyoming-whisper` starts the container, but Home Assistant discovers no
+    Wyoming integration. What is the most likely cause?
+  options:
+    - Discovery requires the service to be published to a host port.
+    - Home Assistant only discovers Wyoming services on the same network as the internet connection.
+    - The image needs a licence key before it will listen on a socket.
+    - The service was started without its profile, so it is not part of the running stack.
+  correct: 3
+  explanation: >-
+    Services in a profile are opt-in: naming one service without passing its profile starts it
+    outside the stack's dependency and discovery setup. The fix is `--profile voice up -d`, and the
+    habit is to always pass the profile.
+
+- id: q4
+  question: >-
+    Why do none of the voice services in the course's compose file publish a port to the host?
+  options:
+    - They are reachable on the internal network by name, and publishing adds an unnecessary listener.
+    - Docker refuses to publish more than two ports in the same file.
+    - Wyoming services cannot listen on a published port.
+    - Publishing them would require authentication, which Wyoming does not support.
+  correct: 0
+  explanation: >-
+    Every container on the same internal network can reach them by service name, so a published port
+    buys nothing and creates a listener that would transcribe whatever is sent to it. The design is
+    the same one the model server uses, for the same reason.

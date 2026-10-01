@@ -1,0 +1,74 @@
+- id: q1
+  question: >-
+    Whisper returns a fluent, confident transcript of a command spoken in a language the service
+    was not configured for. What is the actual behaviour?
+  options:
+    - The intent matcher translates the transcript before attempting to match it.
+    - Whisper detects the language and translates the speech into the configured language.
+    - Whisper always transcribes using its configured language, and produces confident nonsense when it cannot.
+    - Whisper refuses audio whose language it does not recognise and returns an empty transcript.
+  correct: 2
+  explanation: >-
+    Whisper transcribes rather than translates, and it does not refuse. A language mismatch produces
+    a plausible-looking transcript that the pipeline then acts on, which is why the failure is
+    reported as "the model is broken" rather than as a configuration error.
+
+- id: q2
+  question: >-
+    Home Assistant's documentation gives around eight seconds per command for Whisper on a
+    Raspberry Pi 4, and under a second on an Intel NUC. What does that tell you about model choice?
+  options:
+    - That only Intel processors can run Whisper at an acceptable speed.
+    - That Whisper is unsuitable for local voice and a cloud service should be used instead.
+    - That the model size matters less than the machine, so pick the largest one that fits.
+    - That model size must be chosen against the hardware you have, not against a quality ranking.
+  correct: 3
+  explanation: >-
+    A twenty-fold spread from the hardware alone means the ranking of model sizes is meaningless on
+    its own. The practical rule is to pick the smallest model that recognises your commands on the
+    machine you actually own, and to verify it from recorded files before involving a microphone.
+
+- id: q3
+  question: >-
+    What does Speech-to-Phrase give up compared with Whisper, and what does it gain?
+  options:
+    - It gains speed well under a second on slow hardware, but only recognises the phrases you declared.
+    - It gains multiple language support but loses the ability to run locally.
+    - It gains lower memory use but requires an internet connection to update its phrase list.
+    - It gains open-ended question answering but loses accuracy on accents.
+  correct: 0
+  explanation: >-
+    Speech-to-Phrase answers a different question: not "what did you say?" but "which of the
+    phrases I know did you say?" That makes it very fast on modest hardware, and it means questions,
+    arbitrary timers and open-ended speech are outside what it can do.
+
+- id: q4
+  question: >-
+    A three-second command is transcribed correctly 2 times out of 5 with Whisper `base`, and 5 out
+    of 5 with `small`. What is the best next step before changing anything else?
+  options:
+    - Accept the 40% rate, since the intent matcher will usually recover the intended entity.
+    - Record more samples in different rooms before deciding, because the room may be the variable.
+    - Switch to the `.en` variant of `base`, which is optimised for accuracy.
+    - Lower the microphone gain, since clipping usually produces recognition failures.
+  correct: 1
+  explanation: >-
+    Before spending RAM on a larger model, remove the variable you introduced: you measured in one
+    room. `small` costs about 450 MB more resident memory, and the right question is whether the
+    failures were the room or the model. The `.en` variant makes the situation worse, not better.
+
+- id: q5
+  question: >-
+    Why does this course require a multilingual Whisper model rather than the smaller English-only
+    variant?
+  options:
+    - The English-only variants cannot be used with a Welsh or Scottish voice in Piper.
+    - The English-only variants cannot run on a CPU at all.
+    - The English-only variants are noticeably faster, but silently produce garbage on other languages.
+    - Multilingual models are the only ones Home Assistant can discover over Wyoming.
+  correct: 2
+  explanation: >-
+    The English-only models really are smaller and slightly faster, which is exactly what makes them
+    a trap: they fail silently and confidently rather than refusing. The course is built so a Hebrew
+    version can reuse every lab, and an `.en` model would break that the first time anyone spoke
+    another language.

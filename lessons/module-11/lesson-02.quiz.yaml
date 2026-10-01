@@ -4,11 +4,11 @@
     no `ports:` entry, the second sets `OLLAMA_HOST: "127.0.0.1"` and publishes its port. Who can
     reach each of them?
   options:
+    - "The first: every device on your LAN. The second: this machine only."
     - "The first: other containers on its network. The second: the same containers."
     - "The first: nobody, since no port is published. The second: this machine only."
     - "The first: other containers on its network. The second: this machine, and nothing answers."
-    - "The first: every device on your LAN. The second: this machine only."
-  correct: 2
+  correct: 3
   explanation: >-
     The bind address and the published port are two separate switches, and a service needs both to
     be wrong before it is exposed. Publishing a port for something listening on the container's own
@@ -20,11 +20,11 @@
     In the exposure lab, the same container successfully lists the model server's inventory and then
     fails to make it download a model. What explains that?
   options:
+    - The internal network has no route out, so downloading fails while listing works.
     - The victim holds no model files, so both requests find nothing to return.
     - Alpine ships no HTTP client capable of issuing a download request.
     - The download endpoint needs a credential that the listing endpoint does not.
-    - The internal network has no route out, so downloading fails while listing works.
-  correct: 3
+  correct: 0
   explanation: >-
     The two endpoints behave differently for the same reason the lab is safe: a network declared
     `internal: true` has no gateway, so local requests complete and outbound ones cannot. On a real
@@ -36,11 +36,11 @@
     `homelab.py doctor` reports one of your stack ports as reachable from your router. What is the
     right response to that line?
   options:
+    - Leave it alone, because a good password makes an exposed port acceptable.
     - Find the bind address and publish that pulls it back to loopback, then re-run doctor.
     - Put a reverse proxy in front of it, so the service itself stops being reachable.
     - Add a strong password to that service, since reachability without it is the problem.
-    - Leave it alone, because a good password makes an exposed port acceptable.
-  correct: 0
+  correct: 1
   explanation: >-
     Doctor is reporting reachability, and a password does not change reachability — it changes what
     happens after arrival, and only for services that have authentication at all. The model server
@@ -52,11 +52,11 @@
     A guide tells you to set `OLLAMA_HOST: "0.0.0.0"` so a second machine can use your model server.
     What is the accurate assessment of that advice?
   options:
+    - It is a documented requirement, because the API refuses loopback connections outright.
     - It is fine on a home network, because the router stops traffic arriving from outside.
     - It creates an unauthenticated API, and one forward or UPnP rule completes the exposure.
     - It is safe while the host firewall is on, and unsafe only once that firewall is disabled.
-    - It is a documented requirement, because the API refuses loopback connections outright.
-  correct: 1
+  correct: 2
   explanation: >-
     The router is not a control you administer; UPnP opens ports without asking, and forwards from
     earlier experiments are easy to forget. Combine an unauthenticated API with the documented

@@ -3,11 +3,11 @@
     You publish the chat interface on your LAN address so your phone can open it. Which of these
     is the most accurate description of who can now reach it?
   options:
+    - Only devices that are also signed in to the same chat account.
     - Only devices on the trusted network, because the guest network is separate.
     - Every device that can route to your LAN address, including anything on the guest network.
     - Only the devices you named in a clients section of the Compose file.
-    - Only devices that are also signed in to the same chat account.
-  correct: 1
+  correct: 2
   explanation: >-
     Publishing on a LAN address removes the boundary, not the requirement for one. Reachability is
     decided by routing, so the honest question is which networks can route to that address — and a
@@ -19,11 +19,11 @@
     Somebody reaches an unauthenticated model server on your network. Which of these statements
     about what they get is true?
   options:
+    - They can read your indexed documents, because the model server is what performs retrieval.
     - They can unlock your front door, because the model server is wired to the smart lock.
     - They can read your chat history, because the interface keeps it in the same process.
     - They can list, pull and delete models and use your compute, with no credentials at all.
-    - They can read your indexed documents, because the model server is what performs retrieval.
-  correct: 2
+  correct: 3
   explanation: >-
     That list is Ollama's own, from its FAQ, and it is the reason the course publishes no port for
     that service at all. Retrieval runs in the chat interface and the vector store, and the door is
@@ -35,11 +35,11 @@
     Someone asks for the single rule that would remove most of the risk from this stack. Which
     answer should you give?
   options:
+    - Keep nothing in this stack reachable from the internet, and reach it only over a VPN.
     - Encrypt the Docker volumes, so a stolen disk does not expose the model files.
     - Require a password on every service, so a reachable port is also a logged-in port.
     - Put every service behind a reverse proxy that terminates TLS and adds a login page.
-    - Keep nothing in this stack reachable from the internet, and reach it only over a VPN.
-  correct: 3
+  correct: 0
   explanation: >-
     The model server, the voice services and the vector store have no authentication to strengthen
     and no proxy to sit in front of. Removing reachability is the only control that applies to all
@@ -50,11 +50,11 @@
     A later module adds a vector store container to the stack. What is the minimum you should
     settle before it is running on your network?
   options:
+    - Give it a memory limit, a health check and a restart policy, like the other services.
     - Decide who can reach it, what it gives away, and which one control would break that path.
     - Attach it to the IoT guest network, so cheap devices cannot talk to it directly.
     - Pull the image, pin the version tag, and read its release notes for a CVE.
-    - Give it a memory limit, a health check and a restart policy, like the other services.
-  correct: 0
+  correct: 1
   explanation: >-
     Operational hygiene matters, but it is not the question this module is about. Every new service
     gets the same three-line threat model — who can connect, what they get, which single control

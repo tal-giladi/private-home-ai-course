@@ -1,0 +1,59 @@
+- id: q1
+  question: >-
+    Why does this course insist on reading the licence of each Piper voice individually, rather
+    than relying on the engine's licence?
+  options:
+    - Piper's engine has no licence of its own, so the voice licence is the only one that applies.
+    - Voices are updated more often than the engine, so their licences change more frequently.
+    - Voices are larger than the engine, so they are more likely to contain licensed recordings.
+    - Each voice is a separate recorded work with its own terms, which the engine's licence does not cover.
+  correct: 3
+  explanation: >-
+    The repository has hundreds of contributed voices under MIT, CC-BY and whatever terms their
+    donors chose. Running a voice at home is fine under almost any of them; redistributing one is
+    not, and the engine's licence says nothing about it.
+
+- id: q2
+  question: >-
+    A voice assistant's reply arrives about half a second late, and every stage you measured is
+    fast. What is the most likely cause?
+  options:
+    - The client is buffering the entire sentence before playing any audio, rather than streaming it.
+    - The Piper container has no volume mounted, so it re-downloads the voice each time.
+    - The text-to-speech service is running on a different network from Home Assistant.
+    - Piper is generating at low quality rather than medium quality.
+  correct: 0
+  explanation: >-
+    Piper streams: it can begin playing while it is still synthesising, which is why a short reply
+    sounds instant. A client that waits for the whole sentence adds its full duration to the wait,
+    and the fix is in the client rather than in the engine.
+
+- id: q3
+  question: >-
+    Your measurement budget calls for text-to-speech to first audio within 0.5 seconds. Which
+    change would most reliably help if you are currently over it?
+  options:
+    - Switching from a medium quality voice to a low quality one.
+    - Making sure the reply is streamed rather than buffered, and shortening the reply text.
+    - Adding a second Piper service so two can synthesise at once.
+    - Raising the context size, so Piper can hold more of the sentence in memory.
+  correct: 1
+  explanation: >-
+    Time to first audio depends on when the client starts playing and how much text precedes the
+    first word, not on how much hardware Piper has. Streaming and a shorter reply both attack the
+    actual quantity; more hardware and more memory do not.
+
+- id: q4
+  question: >-
+    Your household keeps saying the assistant's voice sounds "off", though every measurement looks
+    fine. What does the course recommend?
+  options:
+    - Change the text-to-speech engine, since the voice choice is not the problem.
+    - Raise the quality tier, since the problem is intelligibility rather than taste.
+    - Try three voices and have someone else listen to a refusal, then choose together.
+    - Reduce the voice speed, which usually fixes an intonation that sounds wrong.
+  correct: 2
+  explanation: >-
+    Voice is a preference that is either shared or it is not, and no benchmark captures it. Listening
+    to a refusal rather than a greeting matters most, because that is the reply a household hears
+    whenever something goes wrong.

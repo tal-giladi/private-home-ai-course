@@ -1,0 +1,73 @@
+- id: q1
+  question: >-
+    Your built-in intent path takes 1.2 seconds end to end and the LLM fallback takes 6.8 seconds.
+    Which conclusion is the honest one to write down?
+  options:
+    - The intent path meets the two-second target; the LLM path does not meet the five-second one.
+    - Both paths meet the targets, because the targets apply only to the first word of audio.
+    - The intent path is the problem, because a hundred milliseconds of matching should be instant.
+    - The pipeline is broken, because both paths should fit inside two seconds.
+  correct: 0
+  explanation: >-
+    The course's figures are goals, and the useful result is a measurement per path. A fast path that
+    meets its target and a slow path that misses its own is a system that works and a clear
+    instruction for what to change next, which is far more actionable than a pass or fail verdict.
+
+- id: q2
+  question: >-
+    Which change is most likely to improve a pipeline whose slowest stage is speech-to-text?
+  options:
+    - Lowering the text-to-speech quality tier from medium to low.
+    - A smaller speech-to-text model, or Speech-to-Phrase for the fast path.
+    - Exposing fewer entities to the conversation agent.
+    - Raising the end-of-speech silence threshold on the satellite.
+  correct: 1
+  explanation: >-
+    Each stage has its own lever, and a smaller speech model or a closed-vocabulary recogniser is
+    the one that acts on speech-to-text. The others either address a different stage or, in the case
+    of entity exposure, add work to the model stage rather than removing any.
+
+- id: q3
+  question: >-
+    You record one number per pipeline run and it varies between one and nine seconds. What does
+    the variation suggest?
+  options:
+    - The stages should be combined into a single average before the results are reported.
+    - The measurement method is unreliable and should be repeated until it is consistent.
+    - The pipeline has a long tail, which matters more for how it feels than the median does.
+    - Nine seconds is the real figure and the faster runs were not genuine completions.
+  correct: 2
+  explanation: >-
+    A median describes the typical case, and voice is judged on the case where it is unusually slow,
+    because that is the one a user notices. Counting how many runs exceed the budget says more about
+    how the system feels than any single summary number.
+
+- id: q4
+  question: >-
+    Why does the course recommend measuring each stage separately rather than timing the whole
+    command?
+  options:
+    - The stages cannot be instrumented separately, so an end-to-end number is the only option.
+    - Stage timings are needed only for the capstone, not for day-to-day tuning.
+    - End-to-end timing includes network time, which the five-stage breakdown removes entirely.
+    - A single number cannot identify which stage to change, and each stage has a different fix.
+  correct: 3
+  explanation: >-
+    The value of the breakdown is that it points at a cause, and the causes have different fixes: a
+    smaller speech model, a smaller conversation model, fewer exposed entities, streaming instead
+    of buffering. One number in front of all of those means guessing.
+
+- id: q5
+  question: >-
+    A spoken reply always begins about half a second after the sentence should have started, and
+    every measured stage is fast. What is the most likely cause?
+  options:
+    - The client waits for the whole sentence to synthesise before playing any of it.
+    - Piper is downloading its voice on each request because its volume is not mounted.
+    - The speech-to-text model is running in fp32 instead of a faster precision.
+    - The text-to-speech quality tier is set to low rather than medium.
+  correct: 0
+  explanation: >-
+    Piper streams, so it can begin playing while it is still synthesising. A client that waits for
+    the complete reply adds the full synthesis duration to the perceived latency, and the fix is in
+    the client's buffering behaviour rather than in the engine.

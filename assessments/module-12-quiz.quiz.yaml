@@ -1,0 +1,138 @@
+- id: q1
+  question: >-
+    Your six configured memory limits add up to 20 GB on a machine with 16 GB of RAM. What is the
+    most likely consequence?
+  options:
+    - Docker reserves the full amount at startup, so the machine refuses to start Docker at all.
+    - The limits are advisory, and the operating system reclaims memory from the largest process.
+    - Nothing, because a container only uses the memory its workload actually needs.
+    - The largest service is killed whenever the machine runs out, taking the stack down with it.
+  correct: 3
+  explanation: >-
+    A limit is a ceiling rather than a reservation, so the total being too large is not a startup
+    failure — it is a ceiling that several services can be under at once, with nothing to stop them
+    all crossing it. Summing the limits and comparing with about 70% of your RAM is the check that
+    catches this before the kernel does.
+
+- id: q2
+  question: >-
+    Voice commands are slow whenever a long chat answer is generating, and only then. What does that
+    pattern point at?
+  options:
+    - Two different models competing for a single resident slot, so one evicts the other.
+    - The health check delaying every request until the model server reports itself healthy.
+    - The chat interface's log file filling, and the voice request waiting for disk space.
+    - A memory limit that the chat interface reaches but the voice services do not.
+  correct: 0
+  explanation: >-
+    The pattern is diagnostic: the cost only appears when both jobs want a model at once, which is
+    the signature of a single model slot being fought over. Using one model for chat and for tools
+    removes the swap entirely, and that is why the course's defaults set them to the same name.
+
+- id: q3
+  question: >-
+    A service is reported as unhealthy, keeps running, and answers no requests. What should you do
+    next?
+  options:
+    - Wait; a failing health check restarts the container once its retries are exhausted.
+    - Read the health check's recorded output, then restart the service deliberately and investigate.
+    - Remove the health check, since an unhealthy service is worse than an unchecked one.
+    - Raise the restart policy to `always`, so Docker intervenes on the service's behalf.
+  correct: 1
+  explanation: >-
+    A health check reports status and nothing more; only the container exiting triggers a restart, so
+    a hung-but-alive service is the case you have to notice yourself. The recorded output is the
+    evidence, and the restart policy is a safety net for crashes rather than for hangs.
+
+- id: q4
+  question: >-
+    You delete the logging block from a service to tidy up the Compose file. What follows on a
+    machine nobody is watching?
+  options:
+    - Logging moves into the container's writable layer and is cleared on every restart.
+    - Output goes to the host's system log, so nothing accumulates on the stack's own disk.
+    - The default log driver has no size limit, so the disk fills until something else fails.
+    - Output is discarded, so `docker compose logs` shows only the most recent restart.
+  correct: 2
+  explanation: >-
+    The default json-file driver imposes no ceiling, so a chatty service writes until the disk is
+    full, and the first visible symptom is usually the whole machine slowing down rather than
+    anything logging. A `max-size` and `max-file` per service is the cheapest control in the file.
+
+- id: q5
+  question: >-
+    A colleague backs up every Docker volume nightly, including the model volume, and the machine
+    runs out of disk space. Which change is the right one?
+  options:
+    - Keep the model backup and drop the chat history, which is the least valuable of the volumes.
+    - Move all archives to cloud storage, so the local disk no longer has to hold two copies.
+    - Compress the model archive harder, since the models are mostly the same kind of data.
+    - Back up only the volumes that cannot be regenerated, and let the models be re-downloaded.
+  correct: 3
+  explanation: >-
+    Models are the largest thing you own, they are public, and a tag re-downloads them in an
+    afternoon, so archiving them buys nothing and costs the space your real archives need. Your
+    automations, your chat history and your index choice exist nowhere else, which is what makes
+    them the contents of a backup.
+
+- id: q6
+  question: >-
+    Your restore drill extracts the archive into a separate volume and starts the stack from it. Why
+    is that better than restoring over the live volume?
+  options:
+    - Because it proves the archive rather than data that was already sitting in the destination.
+    - Because Docker refuses two volumes with the same name in one project, so a copy is required.
+    - Because restoring in place does not recreate the directory structure inside the archive.
+    - Because a live volume cannot be written to while a container is attached to it.
+  correct: 0
+  explanation: >-
+    A restore that lands on top of live data can succeed using what was already there, which proves
+    nothing about the archive. A separate volume with the same mount target exercises the whole path
+    — extract, permissions, startup, configuration — while leaving the original intact until you
+    deliberately choose to destroy it.
+
+- id: q7
+  question: >-
+    You test that a container on the stack's internal network cannot reach the internet. What makes
+    the result trustworthy?
+  options:
+    - Repeating the command several times, so a single failure cannot be a coincidence.
+    - Running the same command on Docker's default bridge first, as a control for the host's route.
+    - "Checking that the container is on a network declared `internal: true` in the Compose file."
+    - Running the test with the host's Wi-Fi switched off, so nothing else can answer instead.
+  correct: 1
+  explanation: >-
+    The failure you expect and the failure you would see with a broken internet connection look the
+    same, so the experiment needs a control that proves the host could have reached it. Reading the
+    Compose file tells you what was intended; the control tells you what happened.
+
+- id: q8
+  question: >-
+    With every stack network internal, the browser's network tab shows a request to an external
+    host. What does that tell you?
+  options:
+    - Your router is forwarding outbound traffic, which is unusual but possible.
+    - The container network is not actually internal, and the request left through the bridge.
+    - The page loaded something remote, which the stack's network settings cannot prevent.
+    - The model server fetched a remote asset to include in its answer to you.
+  correct: 2
+  explanation: >-
+    The stack's isolation governs what the containers may do; the browser is a separate program on
+    the host, and anything the served page loads leaves from your machine. This is the finding the
+    whole lesson is built around, and it is the reason the network tab belongs in the method.
+
+- id: q9
+  question: >-
+    You move Home Assistant to a dedicated machine and publish the model server's port on one LAN
+    address. Which statement describes the result honestly?
+  options:
+    - The model server is unreachable from anywhere, because the LAN address is not routable.
+    - The model server is reachable from every network the stack host is attached to, including IoT.
+    - The model server is now reachable by anything on your tailnet, as well as the trusted LAN.
+    - The model server is reachable from the trusted LAN and nowhere else, and `doctor` will say so.
+  correct: 3
+  explanation: >-
+    A socket bound to one interface does not appear on any other, so a specific address publishes the
+    service to exactly the network you chose — provided the guest network is genuinely separate, which
+    is the part worth testing. The check cannot tell your LAN from the internet, so the exception
+    belongs in the security checklist with its reason.
