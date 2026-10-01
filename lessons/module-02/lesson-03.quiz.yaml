@@ -21,11 +21,11 @@
     You predicted 14 tok/s for a 3B model on your laptop and measured 5.4 tok/s. What is the most
     useful next step?
   options:
-    - Find the cause, because a gap this large usually means single-channel memory or swapping.
-    - Divide the prediction by the ratio between the two models, so the number becomes usable.
     - Raise the efficiency factor to match the measurement, so the next prediction is accurate.
     - Re-measure, because a gap of this size is almost always a mistake in the measurement.
-  correct: 0
+    - Find the cause, because a gap this large usually means single-channel memory or swapping.
+    - Divide the prediction by the ratio between the two models, so the number becomes usable.
+  correct: 2
   explanation: >-
     The prediction and the measurement together are the result; the gap between them names a
     specific cause, and the candidates are few. Adjusting the factor to match is legitimate as

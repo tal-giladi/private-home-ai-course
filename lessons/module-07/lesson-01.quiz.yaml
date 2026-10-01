@@ -1,0 +1,60 @@
+- id: q1
+  question: >-
+    Why does the course's stack run Home Assistant as a container alongside the other services
+    rather than as Home Assistant OS?
+  options:
+    - Container installs start faster and use less memory than the OS image.
+    - Container composes with the rest of the stack; OS is a separate appliance with its own add-on store.
+    - Container is the only installation Home Assistant publishes.
+    - OS images have no support for template entities.
+  correct: 1
+  explanation: >-
+    The container version is one service in one compose file, so it shares the network, the volumes
+    and the version pinning with everything else. Home Assistant OS is a different shape entirely —
+    a bootable appliance with an add-on store — and the course moves to it in lesson 12.4, once the
+    stack is understood.
+
+- id: q2
+  question: >-
+    Home Assistant starts and immediately restarts over and over. Logs show a configuration error.
+    Which directory should you look at first?
+  options:
+    - The browser console, since Home Assistant validates configuration client-side.
+    - The compose file, because a container cannot start with a configuration error.
+    - "`/config`, where Home Assistant reads its configuration and where the error is described."
+    - The Docker image, because a broken image would also stop the model server.
+  correct: 2
+  explanation: >-
+    Home Assistant reads its configuration from `/config` at start-up, and a syntax or include error
+    there stops it before anything else runs. `docker compose logs homeassistant` names the line, and
+    `python3 -m homeassistant --script check_config -c /config` checks a file without starting
+    anything.
+
+- id: q3
+  question: >-
+    Your automations and history vanish after running `docker compose down`. Why?
+  options:
+    - The model server overwrote the configuration volume during its shutdown.
+    - Automations are stored in the browser and are lost when the tab closes.
+    - Automations are held in the image, so removing containers removed them.
+    - Automations live in the Home Assistant config volume, which `down -v` removes.
+  correct: 3
+  explanation: >-
+    Home Assistant's own state — accounts, automations you created, the recorder database — lives in
+    the `homeassistant-config` volume mounted at `/config`. `down` keeps volumes and `down -v`
+    deletes them, which is why the backup lesson comes before the capstone.
+
+- id: q4
+  question: >-
+    The demo entities are mounted read-only from the repository into `/config/demo`. What is the
+    practical benefit of that arrangement?
+  options:
+    - The file cannot be accidentally rewritten by the running instance and can be restored from git.
+    - The entities are loaded with priority over the ones you create yourself.
+    - Home Assistant can refresh the file from the repository automatically when it changes.
+    - Home Assistant starts faster, because it does not have to index the files at start-up.
+  correct: 0
+  explanation: >-
+    Read-only means the running instance cannot alter a version-controlled file, so a stray edit in
+    the UI cannot quietly change what your course is running. It also means the demo setup is
+    reproducible: `git checkout` restores it exactly.

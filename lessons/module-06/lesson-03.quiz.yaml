@@ -1,0 +1,60 @@
+- id: q1
+  question: >-
+    A knowledge question takes fifteen seconds to begin answering, while a plain chat question on
+    the same machine takes four. Where did the extra time most likely go?
+  options:
+    - The vector store re-embedded every stored chunk on each question.
+    - The chat model had to reload, because a long prompt evicts the weights from cache.
+    - The embedding model had to load from disk, because embeddings are not kept in memory.
+    - The retrieved chunks were sent as one long prompt, and prompt processing is much slower than generation.
+  correct: 3
+  explanation: >-
+    Generation re-reads the model once per token, but prompt processing reads the whole prompt in
+    one pass at a lower, compute-bound rate. A few thousand retrieved tokens therefore add many
+    seconds before the first word, and the fix is fewer or shorter chunks.
+
+- id: q2
+  question: >-
+    You evaluate a retrieval system by reading ten answers and scoring how well each reads. Which
+    flaw does that introduce?
+  options:
+    - It scores style rather than correctness, and the wrong answers here read plausibly.
+    - It takes too long to be practical on a ten-question set.
+    - It cannot distinguish a grounded answer from a remembered one, but neither can sources.
+    - None, because readability is what a household user actually cares about.
+  correct: 0
+  explanation: >-
+    In retrieval-augmented work the wrong answers are fluent and household-plausible rather than
+    obviously wrong, so judging the prose rewards exactly the failure you are trying to detect. The
+    fix is to open the cited sources and mark evidence before you judge the answer.
+
+- id: q3
+  question: >-
+    Evidence coverage on your ten questions is 10/10 and the grounded rate is 5/10. What does that
+    combination tell you?
+  options:
+    - The system is fine, because a grounded rate of 50% is normal for small local models.
+    - Retrieval is working and the model is adding details the sources do not support.
+    - Both halves are broken, and the model should be replaced with a larger one immediately.
+    - The index is missing documents, so a wider folder is the first change to try.
+  correct: 1
+  explanation: >-
+    The two numbers say different things on purpose. Full evidence coverage means the right passage
+    reached the prompt, so a grounding failure is about how the answer was produced: smaller chunks,
+    a clearer instruction, a lower temperature or a larger model. Nothing about retrieval needs
+    changing.
+
+- id: q4
+  question: >-
+    After four rounds of tuning — chunk size, top-k, embedding model and temperature — your score
+    improved. What have you actually learned?
+  options:
+    - That the score will keep improving if you keep tuning in the same direction.
+    - That the four settings together are better than the defaults on your documents.
+    - Nothing about which change helped, because four changes were made between measurements.
+    - That the default settings were badly chosen by whoever shipped them.
+  correct: 2
+  explanation: >-
+    Changing four things at once produces one data point and no attribution. When the problem comes
+    back in three months, the tuning you did is no help at all, because you do not know which of the
+    four changes was load-bearing. One change, one measurement, one row in the log.

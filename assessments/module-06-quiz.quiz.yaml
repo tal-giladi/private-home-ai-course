@@ -1,0 +1,132 @@
+- id: q1
+  question: >-
+    You point a knowledge base at your entire documents folder. It answers "what is my wifi
+    password" correctly, with a citation, in under two seconds. What is the right response?
+  options:
+    - Rebuild the index from a curated copy that excludes credential-bearing documents.
+    - Tell the model in future not to repeat passwords, and keep the index as it is.
+    - Lower `RAG_TOP_K`, because credential questions retrieve too many chunks and confuse the model.
+    - Leave it, because the password was already written in a document you chose to give the system.
+  correct: 0
+  explanation: >-
+    The system found the text and reported it, which is exactly what it was asked to do. The fault is
+    in the scope you gave it, and scope is a decision rather than a setting. Asking the model not to
+    reveal secrets is not a control; a narrower index is.
+
+- id: q2
+  question: >-
+    A knowledge question takes eighteen seconds to begin answering on a CPU-only machine, while a
+    plain chat question takes four. Which change reduces the delay most directly?
+  options:
+    - Raising `RAG_TOP_K` to 10, so more relevant chunks crowd out the irrelevant ones.
+    - Narrowing the indexed folder so fewer chunks are retrieved and the prompt is shorter.
+    - Raising the context size, so the model can accept the whole prompt at once.
+    - Switching to a larger chat model, since larger models process prompts faster.
+  correct: 1
+  explanation: >-
+    The wait is in prompt processing, which scales with the number of retrieved tokens. Fewer chunks
+    means a shorter prompt and a shorter wait; more chunks and a larger context both make the prompt
+    longer, and so both make it worse.
+
+- id: q3
+  question: >-
+    Your indexer is pointed at a chat model rather than an embedding model. What happens?
+  options:
+    - The chat model refuses vectors it did not create itself.
+    - Indexing fails immediately, because chat models cannot return a fixed-length vector.
+    - Nothing errors, but retrieved chunks tend to share words rather than meaning with the question.
+    - Answers improve, because a chat model has a richer internal representation than an embedder.
+  correct: 2
+  explanation: >-
+    A chat model will return numbers, and those numbers are not trained to place similar meanings
+    close together. Lexical overlap is the best it can do, which looks like retrieval that is nearly
+    working — and fails hardest on exactly the paraphrased questions people actually ask.
+
+- id: q4
+  question: >-
+    You delete a document from your indexed folder, re-ingest, and the model still answers a
+    question only that document could answer. What does that tell you?
+  options:
+    - The embedding model caches documents and refreshes only on a schedule.
+    - The interface cached the earlier answer and is replaying it.
+    - The chat model memorised the document during the first ingest.
+    - Your ingest path only adds and never removes, so the deleted file is still in the collection.
+  correct: 3
+  explanation: >-
+    Many indexers treat ingest as append-only, so a deleted file stays forever and still answers
+    questions about itself. The test that exposes this — delete, re-ingest, ask again — is exactly why
+    it should be run deliberately before anything private is indexed.
+
+- id: q5
+  question: >-
+    Evidence coverage on your ten labelled questions is 10/10 and the grounded rate is 5/10. Which
+    change is the right first move?
+  options:
+    - Reduce chunks or temperature and sharpen the instruction, because retrieval is already correct.
+    - Re-run the evaluation, because two numbers disagree and one of them must be wrong.
+    - Replace the embedding model, because retrieval is clearly the weaker half.
+    - Narrow the indexed folder, because more irrelevant text is confusing the model.
+  correct: 0
+  explanation: >-
+    The two scores are designed to say different things. Full evidence coverage means the right
+    passage reached the prompt, so the failure is in how the answer was produced, and the fixes —
+    shorter chunks, a clearer instruction, a lower temperature — all target that.
+
+- id: q6
+  question: >-
+    After tuning chunk size, top-k, the embedding model and temperature across four rounds, your
+    score improved noticeably. What have you learned?
+  options:
+    - That these four settings together suit your documents better than the defaults.
+    - Nothing about which change mattered, because four changes were made between measurements.
+    - That the shipped defaults were badly chosen for local use.
+    - That further tuning in the same direction will keep improving the score.
+  correct: 1
+  explanation: >-
+    Four changes and one measurement produce one data point and no attribution. When the problem
+    returns next month, the tuning is no help, because nothing in the record says which change was
+    load-bearing. One change, one measurement, one row logged.
+
+- id: q7
+  question: >-
+    Why is a knowledge answer slow on a CPU even when the same model feels responsive in ordinary
+    chat?
+  options:
+    - The interface disables streaming whenever a knowledge base is attached.
+    - Retrieval bypasses the model server and queries the vector store directly each time.
+    - The retrieved chunks form one long prompt, which is processed at prompt speed rather than generation speed.
+    - The embedding model occupies memory, leaving too little for the chat model's weights.
+  correct: 2
+  explanation: >-
+    Ordinary chat arrives with a short prompt and then streams tokens. A knowledge question sends
+    thousands of prompt tokens first, and prompt processing runs at a much lower rate because it is
+    compute-bound rather than bandwidth-bound. The model is not slower; the wait is somewhere else.
+
+- id: q8
+  question: >-
+    Your evaluation gives 9/10, and the single failure is the one question about an appliance error
+    code. What does the score tell you about the system?
+  options:
+    - The system needs a larger chat model, because every failure points at generation quality.
+    - The index should be widened to include more documents, which will fix the error code.
+    - The system is 90% reliable, which is good enough for a household.
+    - Very little, because an average hides which capability failed and how badly it matters.
+  correct: 3
+  explanation: >-
+    An average over ten questions hides the only fact you need, which is that the failure is
+    systematic and concentrated in one area. A household assistant that reads manuals but cannot be
+    trusted with error codes is worse than one you know exactly what it cannot do.
+
+- id: q9
+  question: >-
+    Which single artefact is most worth keeping for an indexed household folder?
+  options:
+    - A dated text file listing exactly which files were copied into the index and when.
+    - A screenshot of the knowledge base settings page, kept in case the defaults change.
+    - A second embedding model, kept in reserve for a future quality comparison.
+    - A hand-maintained copy of every source document, synchronised on every edit.
+  correct: 0
+  explanation: >-
+    The list answers the only two questions that matter in practice: what does this system know, and
+    what do I need to remove from it. It takes five minutes to write and it is the difference
+    between an index you can audit and one you are afraid to add anything private to.

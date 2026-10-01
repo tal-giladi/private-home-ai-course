@@ -1,0 +1,57 @@
+- id: q1
+  question: >-
+    A light is on in the Home Assistant dashboard, and you type "turn on the kitchen light" into
+    Assist, which replies that it could not understand. What is the most likely cause?
+  options:
+    - Home Assistant needs a restart before Assist recognises newly added entities.
+    - Assist only accepts typed commands when a language model is configured.
+    - The entity exists and works, but it has not been exposed to that assistant.
+    - The sentence needs the article "the" in a different position.
+  correct: 2
+  explanation: >-
+    Exposure is opt-in and per assistant, so an entity can be fully functional in Home Assistant and
+    still be invisible to Assist. That is the first thing to check, and it is also the setting that
+    decides what a language model in Module 10 is able to act on.
+
+- id: q2
+  question: >-
+    "Turn on the hall light" works, but "turn on the lights in the hallway" does not. What fixes it?
+  options:
+    - Restarting Home Assistant so it rebuilds its sentence grammar.
+    - Exposing the entity to the other assistant.
+    - Adding the word "lights" to the entity's alias.
+    - Assigning the entity to an area called Hallway.
+  correct: 3
+  explanation: >-
+    An area lets a sentence name a place instead of a device, which is how the phrasing people
+    actually use gets matched. Aliases add an extra word for the same entity; they do not change the
+    structure of a sentence.
+
+- id: q3
+  question: >-
+    You type "is it cold in here?" and Assist says it could not understand. What is the right
+    interpretation?
+  options:
+    - Built-in intents control entities; open-ended statements need a conversation agent.
+    - The temperature sensors are not exposed, and no exposure would help.
+    - Home Assistant cannot answer questions, only perform actions.
+    - The sentence grammar is missing a phrase for temperature questions.
+  correct: 0
+  explanation: >-
+    Assist's built-in intents cover control and a few fixed queries. An open-ended statement has to
+    be handed to a conversation agent, which is a language model choosing what to do — and that is
+    exactly the boundary Module 10 measures on both sides.
+
+- id: q4
+  question: >-
+    Why does this course tell you not to expose a lock or a garage door to Assist at the start?
+  options:
+    - Locks and covers are not supported by the Assist pipeline in any form.
+    - Every exposed entity is one more thing a model can choose, so mistakes scale with the list.
+    - Exposing a lock forces a confirmation step that breaks the voice pipeline.
+    - Assist requires all entities to be exposed before any are, so it must be all or nothing.
+  correct: 1
+  explanation: >-
+    The list you expose becomes the tool set available to a conversation agent in Module 10. A wrong
+    choice among five lights is a light; a wrong choice among five lights plus a front door lock is
+    a door, and the guardrail for that belongs to lesson 10.3, not to the exposure setting.

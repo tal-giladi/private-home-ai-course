@@ -1,0 +1,63 @@
+- id: q1
+  question: >-
+    Someone asks why reaching your stack over a VPN removes the need to forward a port on your
+    router. Which of these is the correct explanation?
+  options:
+    - Because the VPN encrypts the port, so the router may leave it closed to everyone else.
+    - Because the VPN gives the stack a public address that only approved devices are told about.
+    - Because the VPN client listens on your router and forwards the port to the stack for you.
+    - Because the stack's address is private, so there is nothing public to forward to.
+  correct: 3
+  explanation: >-
+    There is nothing listening on your router's public address for a forward to point at, which is
+    the entire mechanism by which a port forward creates exposure. Encryption protects the contents
+    of a connection that is already established; it does not make an open port safe, and this course
+    does not teach opening one.
+
+- id: q2
+  question: >-
+    Someone objects to a managed mesh VPN because a vendor's coordination service is involved. What
+    is the accurate description of what that service can observe?
+  options:
+    - Device metadata such as names, addresses and keys, but not the traffic those keys protect.
+    - Only the metadata of the model server, because the chat interface runs on your own machine.
+    - Everything in the chat, because it holds the keys that decrypt tailnet traffic.
+    - Nothing whatsoever, because no device information ever reaches the coordination service.
+  correct: 0
+  explanation: >-
+    The data plane is encrypted end to end and the coordination service never holds the private keys,
+    so your conversations and documents are not visible to it. What it does see is metadata about
+    your devices and when they were online, which is a real trade and the reason some people run
+    WireGuard on their own router instead.
+
+- id: q3
+  question: >-
+    The chat interface is bound to `127.0.0.1` and you want a browser on your phone to open it over a
+    tailnet. What actually gets you a working connection?
+  options:
+    - Forward port 8080 in your router to the stack host and use its LAN address.
+    - Tunnel the last hop over SSH, for example with `ssh -L 8080:127.0.0.1:8080 homelab`.
+    - Add the tailnet address to the interface's trusted-origins setting in its own configuration.
+    - Change `WEBUI_BIND` to `0.0.0.0`, so the interface answers on every interface at once.
+  correct: 1
+  explanation: >-
+    Loopback is the host's own loopback, so a tailnet connection that arrives at the host still has
+    to be carried the last few metres by something. An SSH local forward does exactly that and
+    changes nothing on the host, which is why `doctor` stays quiet; widening the bind address
+    instead exposes the interface to your whole LAN.
+
+- id: q4
+  question: >-
+    You have moved your smart bulbs to the guest SSID and assume they can no longer reach your
+    indexed files. What should the next step be?
+  options:
+    - Read the router's documentation to see whether that SSID has client isolation enabled.
+    - Assume isolation, since a separate SSID is what the isolation feature is called.
+    - Test from a device on the guest network against the stack's known address and port.
+    - Add a firewall rule on the stack host that drops traffic from the guest subnet.
+  correct: 2
+  explanation: >-
+    A separate SSID frequently means a separate name and a shared network underneath, so the
+    segmentation can be decorative. One targeted check against your own host proves which you have,
+    and it costs a minute; documentation and good intentions do not, because routers that isolate
+    well and routers that do not are indistinguishable from the admin page.

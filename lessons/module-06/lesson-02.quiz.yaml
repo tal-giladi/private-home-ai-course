@@ -1,0 +1,58 @@
+- id: q1
+  question: >-
+    A knowledge base built from your whole documents folder answers "what is my wifi password"
+    correctly, with a citation. What is the right response?
+  options:
+    - Lower `RAG_TOP_K`, because credential questions retrieve too many chunks and confuse the model.
+    - Leave it, because the password was already in a file you chose to give the system.
+    - Rebuild the index from a curated copy that excludes credential-bearing documents.
+    - Ask the model in future not to repeat passwords, and keep the index as it is.
+  correct: 2
+  explanation: >-
+    The system is working exactly as specified: it found the text and reported it. The fault is in
+    what you chose to index, and that is a decision rather than a setting. Asking the model not to
+    repeat secrets is not a control; a smaller scope is.
+
+- id: q2
+  question: >-
+    You delete a document from your indexed folder and re-ingest, but the model still answers a
+    question only that document could answer. What does that tell you?
+  options:
+    - The embedding model was trained on the document before it was indexed.
+    - The question was cached by the interface from the earlier session.
+    - The chat model has memorised the document and is answering from memory.
+    - Your system has no delete path, or the re-ingest only adds and never removes.
+  correct: 3
+  explanation: >-
+    Many indexers treat ingest as append-only, so a deleted file stays in the collection forever.
+    The test that reveals this — delete, re-ingest, ask again — is exactly why the lesson asks you
+    to run it deliberately before you put anything private into the folder.
+
+- id: q3
+  question: >-
+    Your first word after a knowledge question takes fifteen seconds. Which change helps most
+    without touching the chat model?
+  options:
+    - Narrowing the indexed folder, so fewer chunks are retrieved and the prompt is shorter.
+    - Increasing the chat model's context size, so it can accept a longer prompt at once.
+    - Raising `RAG_TOP_K`, so more relevant chunks crowd out the irrelevant ones.
+    - Switching to a larger embedding model, so each chunk is represented more accurately.
+  correct: 0
+  explanation: >-
+    The cost is in prompt processing, which scales with the number of retrieved tokens. Fewer chunks
+    means a shorter prompt and a shorter wait; more chunks or a larger context does the opposite,
+    because both make the prompt longer.
+
+- id: q4
+  question: >-
+    Which of these is the single most useful artefact to keep for an indexed folder at home?
+  options:
+    - A copy of every document, kept in sync with the source by hand each time it changes.
+    - A plain text file listing exactly which files were copied into the index, and when.
+    - A screenshot of the knowledge base settings page, in case the defaults change.
+    - A second embedding model, so you can compare retrieval quality later.
+  correct: 1
+  explanation: >-
+    Everything else is either maintenance you will forget or a setting that is already recorded in
+    git. A dated list of what is indexed answers the only two questions that matter in practice:
+    what does this system know, and what do I need to remove from it.

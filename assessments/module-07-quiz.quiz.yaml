@@ -1,0 +1,131 @@
+- id: q1
+  question: >-
+    You started the stack and tried to open Home Assistant at 127.0.0.1:8123, and nothing was there.
+    What is the explanation?
+  options:
+    - The service publishes no host port by design, so there is nothing listening on the host.
+    - The port is taken by another service, so Docker assigned a different one silently.
+    - Home Assistant binds to the Docker bridge address rather than to loopback.
+    - Home Assistant is still unpacking its image and needs several more minutes.
+  correct: 0
+  explanation: >-
+    The course's stack gives Home Assistant no `ports:` entry at all, so containers on the internal
+    network can reach it and nothing else can. Publishing it is a deliberate step that Module 11
+    teaches you to make safely rather than an oversight you are working around.
+
+- id: q2
+  question: >-
+    A light works in the dashboard, but "turn on the kitchen light" produces "could not
+    understand". Which check belongs first?
+  options:
+    - Whether the sentence needs the article "the" before the light's name.
+    - Whether the entity has been exposed to the assistant you are using.
+    - Whether Home Assistant has been restarted since the light was created.
+    - Whether the entity belongs to an area.
+  correct: 1
+  explanation: >-
+    Exposure is opt-in and per assistant, so a fully working entity can still be invisible to Assist.
+    It is also the setting that decides what a language model in Module 10 can act on, which is why
+    it is worth understanding before you start adding entities.
+
+- id: q3
+  question: >-
+    "Turn on the hall light" works but "turn on the lights in the hallway" does not. What fixes it?
+  options:
+    - Restarting Home Assistant so the sentence grammar is rebuilt.
+    - Adding the plural "lights" to the entity's alias.
+    - Assigning the entity to an area called Hallway.
+    - Exposing the hall light to a second assistant.
+  correct: 2
+  explanation: >-
+    An area lets a sentence name a place rather than a device, which is how the phrasing people
+    actually use gets matched. Aliases add alternative words for the same entity but do not change
+    the structure of a sentence.
+
+- id: q4
+  question: >-
+    Which one of these does built-in Assist handle without any language model configured?
+  options:
+    - Summarise the washing machine manual in three sentences.
+    - It's cold in here, can you do something about it?
+    - What did I leave switched on last night?
+    - Set a timer for five minutes
+  correct: 3
+  explanation: >-
+    Built-in intents cover control and a fixed set of queries such as timers. The other three are
+    open-ended, and they are exactly the cases a conversation agent exists to handle — which is
+    why Module 10 measures the two paths separately rather than swapping one for the other.
+
+- id: q5
+  question: >-
+    You add a custom sentences file and no custom phrase matches at all. What is the most likely
+    cause?
+  options:
+    - One YAML error in the file causes every custom sentence in it to be rejected.
+    - The `intent_script` include was removed from configuration.yaml.
+    - Custom sentences only work once a language model is configured.
+    - Assist needs a second restart after adding a sentences file.
+  correct: 0
+  explanation: >-
+    Custom sentences are parsed as a single unit, so one malformed block invalidates the whole file
+    rather than one phrase. Running `check_config` before every restart turns a guess into a line
+    number, and it is the habit worth taking from the lesson.
+
+- id: q6
+  question: >-
+    A custom sentence contains the placeholder `{minutes}`, and no list named `minutes` is defined.
+    What happens at runtime?
+  options:
+    - Assist asks the user which number they meant.
+    - No sentence containing that placeholder ever matches, and it looks like a recognition fault.
+    - The placeholder is treated as the literal word "minutes".
+    - Assist disables the whole sentences file, as with a syntax error.
+  correct: 1
+  explanation: >-
+    A slot with no list can never be filled, so the sentence family is silent. That silence looks
+    like a speech-recognition problem, which is exactly why checking every placeholder against its
+    list is the first thing to do when a single phrase will not match.
+
+- id: q7
+  question: >-
+    Why is the course's demo entities file mounted read-only into the Home Assistant container?
+  options:
+    - It lets Home Assistant pull an updated copy from the repository automatically.
+    - Read-only mounts start faster, because Home Assistant does not have to scan them.
+    - The running instance cannot rewrite a version-controlled file, so the demo setup is reproducible.
+    - Home Assistant prioritises read-only files when resolving conflicting entity names.
+  correct: 2
+  explanation: >-
+    Read-only means an edit made in the UI cannot quietly change what the course is running, and it
+    means the demo setup comes back exactly after a restore, because it lives in git rather than in
+    a volume you have to remember to back up.
+
+- id: q8
+  question: >-
+    The household says "good night" expecting lights off and the heating down. What is the most
+    reliable way to implement it?
+  options:
+    - Use a shorter phrase, such as "night", to reduce the chance of mishearing it.
+    - Leave it to the conversation agent and check its tool calls in the log afterwards.
+    - Give the phrase a larger share of the context window so it is matched more reliably.
+    - Map it to a fixed custom intent with a fixed action list, so no interpretation happens.
+  correct: 3
+  explanation: >-
+    A custom sentence removes the interpretation step entirely: the phrase is the action, with no
+    model, no tool selection and nothing to get wrong. That is the right shape for anything a
+    household depends on, and the conversation agent is for the things no fixed phrase can cover.
+
+- id: q9
+  question: >-
+    You are about to add real hardware to this Home Assistant instance. Which advice from this
+    module applies most directly?
+  options:
+    - Move predictable behaviour onto state-triggered automations, so it works without the voice path.
+    - Keep the sentence list small, because Home Assistant slows down as custom sentences are added.
+    - Add the devices to an area rather than exposing them, since areas are enough for Assist.
+    - Real and demo entities can be exposed together, since exposure does not distinguish between them.
+  correct: 0
+  explanation: >-
+    Voice is a nice-to-have and a state trigger is not, so anything predictable belongs in an
+    automation. That keeps the most useful behaviour working even if the microphone, the speech
+    model or the model server is the thing that has broken that week.

@@ -1,0 +1,58 @@
+- id: q1
+  question: >-
+    After adding a custom sentences file, none of your phrases match — including ones that worked
+    yesterday. What is the most likely cause?
+  options:
+    - The intent is missing an action, so the phrase matches but nothing happens.
+    - The `intent_script` include was removed from configuration.yaml during the restart.
+    - Assist was restarted and lost the custom sentences.
+    - One YAML error in the file makes Assist reject every custom sentence in it.
+  correct: 3
+  explanation: >-
+    Custom sentences are parsed as one unit, so a single malformed block invalidates the whole file
+    rather than one phrase. `check_config` names the line, and it is worth running before every
+    restart while you are editing, rather than after.
+
+- id: q2
+  question: >-
+    A sentence uses the placeholder `{minutes}` but no list named `minutes` is defined. What happens?
+  options:
+    - The phrase never matches, and the failure looks like a recognition problem rather than a configuration one.
+    - The placeholder is treated as literal text and only matches the word "minutes".
+    - Assist loads the file but disables every custom sentence, as with a syntax error.
+    - Assist asks the user which number they meant.
+  correct: 0
+  explanation: >-
+    An undefined list means the slot can never be filled, so no sentence containing that
+    placeholder can ever match. The symptom is silence for one family of phrases, which is why
+    checking every placeholder against its list is the first thing to do.
+
+- id: q3
+  question: >-
+    Which change makes "good night" the most reliable thing in a voice assistant?
+  options:
+    - Give it a longer context so the model understands the phrase better.
+    - Map it to a fixed intent with a fixed action list, so no interpretation happens at all.
+    - Shorten the phrase to two words, so it is less likely to be misheard.
+    - Put it first in the list of custom sentences, so it matches before anything else.
+  correct: 1
+  explanation: >-
+    A custom sentence removes the interpretation step: the phrase is the action. There is no model,
+    no tool selection and nothing to get wrong, which is what makes it the right tool for the
+    actions a household depends on.
+
+- id: q4
+  question: >-
+    Why does this course recommend an automation that triggers on a sensor state rather than a
+    spoken phrase, wherever possible?
+  options:
+    - State triggers consume less memory, which matters on a 16 GB machine.
+    - Automations triggered by state are faster, because they skip the speech-to-text stage.
+    - A state trigger works whether or not anyone speaks, so it keeps working if the voice path breaks.
+    - Home Assistant does not permit sentence triggers on automations that change light state.
+  correct: 2
+  explanation: >-
+    Voice is a nice-to-have; a house that behaves correctly is not. Moving predictable behaviour
+    from a spoken command to a state trigger removes a whole dependency — microphone, wake word,
+    speech model, model server — from the path, and it is the single most valuable thing you can
+    take from this lesson.

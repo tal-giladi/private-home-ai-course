@@ -1,0 +1,58 @@
+- id: q1
+  question: >-
+    Your indexer is pointed at a chat model instead of an embedding model. What happens?
+  options:
+    - Indexing fails immediately, because chat models refuse to produce a fixed-length vector.
+    - Nothing errors, but retrieval returns chunks that are lexically similar rather than semantically related.
+    - Answers get better, because a chat model has a richer internal representation than an embedder.
+    - The knowledge base builds correctly, but the chat model refuses to use vectors it did not create.
+  correct: 1
+  explanation: >-
+    A chat model will happily return numbers, and those numbers are not trained to place similar
+    meanings close together. The failure is silent, which is why retrieval problems are so often
+    misdiagnosed as chunking problems or as a bad model.
+
+- id: q2
+  question: >-
+    A knowledge question takes eighteen seconds to begin answering, while a plain chat question on
+    the same machine takes four. Where did the extra time most likely go?
+  options:
+    - The vector store re-embedded every chunk in the index on each question.
+    - The chat model had to reload, because a long prompt evicts the weights from cache.
+    - The retrieved chunks were sent as one long prompt, and prompt processing is much slower than generation.
+    - The embedding model had to load from disk, since embeddings are not kept in memory.
+  correct: 2
+  explanation: >-
+    Generation re-reads the model once per token, but prompt processing reads the whole prompt in
+    one pass at a lower, compute-bound rate. A few thousand retrieved tokens can therefore add many
+    seconds before the first word, and lowering the number of retrieved chunks is the direct fix.
+
+- id: q3
+  question: >-
+    Documents are chunked at four thousand words each so that each answer has more context. What is
+    the most likely consequence?
+  options:
+    - The embedding model refuses chunks above a certain length and silently skips them.
+    - Nothing changes, because retrieval only ever uses the first page of each chunk.
+    - Answers improve, because more context always makes retrieval-augmented answers better.
+    - The prompt becomes enormous, so the wait before the first word grows and the answer is harder to find.
+  correct: 3
+  explanation: >-
+    Chunk size is a trade-off with a cost on both sides. Very large chunks produce long prompts that
+    cost prompt-processing time on a CPU, and they dilute the retrieved text so the answer is
+    surrounded by irrelevant material, which is exactly where a small model goes wrong.
+
+- id: q4
+  question: >-
+    You add a document to the folder you connected as a knowledge base, then ask a question only
+    that document can answer. What is the explanation?
+  options:
+    - The index was built when the folder was connected, and nothing re-reads the folder since.
+    - The embedding model only indexes the first twenty files, so later ones were never embedded.
+    - The knowledge base refreshes on a schedule that has not yet run.
+    - The folder is mounted read-only, so new files cannot be read by the running container.
+  correct: 0
+  explanation: >-
+    Connecting a folder and indexing a folder are different operations. The mount gives the
+    container access to the files; the index is a snapshot made at ingest time, so a new file is
+    invisible until you re-ingest. Lesson 21 is about making that automatic rather than memorable.
