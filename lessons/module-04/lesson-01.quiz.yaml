@@ -1,0 +1,59 @@
+- id: q1
+  question: >-
+    A client library only knows how to talk to the OpenAI chat completions API and demands an API
+    key. You point it at your local model server. What should the key field contain?
+  options:
+    - Nothing at all, because the local server refuses requests that carry no key.
+    - Any non-empty string, because the local server does not check it.
+    - A key generated in the local server's admin settings, which it then validates.
+    - The container's name, which the server uses to identify the calling service.
+  correct: 1
+  explanation: >-
+    Local runtimes expose the OpenAI-shaped API so existing clients work without modification, and
+    they do not authenticate it. That is exactly why the port must never be published: there is no
+    credential an attacker would need, only network reachability.
+
+- id: q2
+  question: >-
+    Why does a request sent with `"stream": true` make a slow model feel noticeably faster to use?
+  options:
+    - Streaming lets the server start generating before it has read the whole prompt.
+    - Streaming returns partial results that are usually discarded, then sends a corrected full answer.
+    - Streaming shows the first words while the rest is still being generated, so the first token arrives sooner.
+    - Streaming reduces the number of tokens generated, so the total work is smaller.
+  correct: 2
+  explanation: >-
+    Streaming changes when results become visible, not how much work is done. The model still
+    generates every token, but the interface can display the first ones immediately instead of
+    showing nothing for several seconds and then dumping a finished paragraph.
+
+- id: q3
+  question: >-
+    A script inside a container on the Compose network calls `http://127.0.0.1:11434` and gets a
+    connection error, while the same URL works from your shell. What is the reason?
+  options:
+    - The container is on an internal network, so loopback traffic is blocked by Docker.
+    - Each container has its own network namespace, so 127.0.0.1 there refers to that container, not the host.
+    - The model server is bound to 0.0.0.0, which excludes loopback connections by design.
+    - The host's native Ollama and the container's server are using different ports for the same URL.
+  correct: 1
+  explanation: >-
+    A container's loopback address means the container itself, so the request never leaves it. On a
+    Compose network, services reach each other by name, which is why the correct value is
+    `http://ollama:11434` rather than an address of any kind.
+
+- id: q4
+  question: >-
+    The same prompt sent through the native API and through the OpenAI-compatible API gives
+    noticeably different replies, and the compatible endpoint's token counts are missing. Why?
+  options:
+    - The compatible endpoint uses a different model unless you pass the full tag with its quantisation.
+    - The compatible endpoint applies a default temperature and ignores options it does not recognise.
+    - The compatible endpoint truncates the conversation to the model's base context length.
+    - The compatible endpoint routes the request to the default model when the name is unknown.
+  correct: 1
+  explanation: >-
+    The OpenAI-compatible API is a subset, and anything it does not recognise falls back to the
+    server's defaults rather than being reported back to you. That silent difference in generation
+    settings is the main compatibility cost, and it is a good reason to prefer the native API for
+    your own code.

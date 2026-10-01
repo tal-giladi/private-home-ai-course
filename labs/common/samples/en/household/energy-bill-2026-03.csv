@@ -1,0 +1,10 @@
+month,kwh_total,kwh_heating,kwh_water,standing_charge_gbp,unit_rate_gbp,total_gbp,notes
+2025-10,412,318,0,0.61,0.2703,86.66,"First cold month. Heating dominates."
+2025-11,498,404,0,0.61,0.2703,104.74,
+2025-12,611,517,0,0.61,0.2703,130.62,"Coldest month of 2025."
+2026-01,587,498,0,0.61,0.2703,125.06,
+2026-02,463,361,0,0.61,0.2703,95.12,"AI box switched on 2026-02-20. Immaterial at 30 W."
+2026-03,402,262,18,0.61,0.2703,86.85,"Meter read was late this month: 18 kWh of water heating is a partial figure, the rest landed in April."
+2026-04,331,151,22,0.61,0.2703,71.02,
+2026-05,268,44,24,0.61,0.2703,57.94,
+2026-06,241,0,25,0.61,0.2703,52.33,"Heating column 0: no heating call recorded in June."

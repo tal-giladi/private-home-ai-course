@@ -1,0 +1,59 @@
+- id: q1
+  question: >-
+    A 3B model manages 4.8 tokens/second on a Raspberry Pi 5 and 13.1 tokens/second on a Ryzen
+    mainboard. What is the main reason for the difference?
+  options:
+    - The Raspberry Pi's processor is too slow to keep up with the arithmetic.
+    - The Pi's single-channel memory delivers far fewer bytes per second than the desktop's dual channel.
+    - The Ryzen board has a faster SSD, so model weights load from disk more quickly.
+    - The Pi runs an older build of the inference engine that wastes CPU cycles.
+  correct: 1
+  explanation: >-
+    Every generated token re-reads the whole model from RAM, so generation is bounded by memory
+    bandwidth rather than by arithmetic. The Pi 5 is deliberately single-channel; dual-channel
+    desktop memory moves several times more bytes per second, and that is what the gap reflects.
+
+- id: q2
+  question: >-
+    Your 16 GB desktop DDR5 laptop feels slow running a 4B model, but the model fits in memory with
+    room to spare. What is the first thing to check?
+  options:
+    - Whether the operating system's power plan is set to maximum performance.
+    - Whether the memory is in dual channel, which a single DIMM can halve.
+    - Whether the model has been quantised more aggressively than it needs to be.
+    - Whether the inference engine was compiled with AVX2 instructions enabled.
+  correct: 1
+  explanation: >-
+    A single DIMM leaves one memory channel unpopulated, roughly halving the bytes per second the
+    CPU can pull, and generation speed falls with it. Power plans and compiler flags change
+    prompt-processing speed far more than they change generation speed.
+
+- id: q3
+  question: >-
+    Why does this course tell you to build on the laptop you already own before buying a dedicated
+    always-on machine?
+  options:
+    - Laptops have more memory bandwidth than desktops at the same price.
+    - A second machine bought before anything is built is chosen from other people's benchmarks rather than your own needs.
+    - Mini PCs cannot run Docker Compose, so a laptop is the only option for the course.
+    - Laptops never enter a sleep state while a container is running.
+  correct: 1
+  explanation: >-
+    Until you have built the stack, you do not know which part actually needs to be always-on: chat,
+    the voice pipeline, or just Home Assistant. Building on hardware you own keeps the cost at zero
+    and produces the measurements that make the later decision an informed one.
+
+- id: q4
+  question: >-
+    An 8B model loads successfully on a Raspberry Pi 5 with 8 GB of RAM, and every reply takes
+    about fifteen seconds. Nothing reports an error. What is the right diagnosis?
+  options:
+    - The quantisation is broken and the model is producing garbage as well as being slow.
+    - The request is being rate-limited by the model server's keep-alive setting.
+    - The context window is too small for the model's chat template to fit.
+    - It fits, so there is no error — but the memory bandwidth makes it unusable, and a smaller model is the fix.
+  correct: 3
+  explanation: >-
+    Loading successfully only means the weights fit. Generation speed is set by bandwidth divided by
+    model size, so a model that fits can still be far too slow to use. There is no error message
+    for "technically works, practically unusable", which is why sizing comes before building.

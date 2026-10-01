@@ -1,0 +1,73 @@
+- id: q1
+  question: >-
+    Someone offers you a "faster, lossless" version of a model you already use, as a `.pth` or
+    `.bin` file on a direct link. What is the correct response?
+  options:
+    - Convert it, because any format the runtime can open is safe to open.
+    - Download it, since the weights are the same as the official release and only the container differs.
+    - Do not use it, because these formats execute code while loading, before any weights are read.
+    - Download it and load it in a container, since a container contains whatever it loads.
+  correct: 3
+  explanation: >-
+    Pickle-based formats run arbitrary Python during deserialisation, so loading one is running
+    untrusted code. A container does not help, because the code runs inside it with whatever
+    privileges it was given — and in a home stack that is often access to every file you indexed.
+
+- id: q2
+  question: >-
+    Two models pass 17 of your 20 eval tasks. One is Apache-2.0, the other uses a community
+    licence with an acceptable-use policy. Which should you install, and why?
+  options:
+    - The community one, because its extra terms usually restrict commercial use, which is irrelevant at home.
+    - The Apache-2.0 one, because when scores are close the clearer licence is worth more than the difference.
+    - Whichever downloaded faster, since licences do not affect a private installation.
+    - The community one, because community licences generally permit redistribution, which the other may not.
+  correct: 1
+  explanation: >-
+    For a home stack both are usable, so the tie-break should go to the licence that keeps your
+    options open: Apache-2.0 has no conditions at all. Licence choice is only interesting when it
+    costs you something, and it does cost you something the day you show someone else your setup.
+
+- id: q3
+  question: >-
+    You pick a text-to-speech voice from a repository with hundreds of community contributions. The
+    engine's own licence is clear. What still needs checking?
+  options:
+    - Nothing; the voice inherits the licence of the engine that speaks it.
+    - Whether the voice's own model card states a licence, since voices are licensed separately.
+    - Whether the voice file is larger than the engine, which would suggest it was bundled.
+    - Whether the voice supports streaming, because non-streaming voices cannot be used with Piper.
+  correct: 1
+  explanation: >-
+    Each voice is a separate work with its own terms — MIT, CC-BY, or whatever a donor chose — and
+    the engine's licence says nothing about them. It is the step people skip, because a voice feels
+    like a sample rather than something you are licensing.
+
+- id: q4
+  question: >-
+    A model has passed every one of your twenty eval tasks, but it was uploaded by an account with
+    a single release and no stated provenance. What should you conclude?
+  options:
+    - Twenty of twenty is strong evidence that the file is safe to load.
+    - The file is probably safe, because a malicious payload would have degraded its answers.
+    - You cannot establish provenance, so the evaluation result does not authorise installing it.
+    - It is fine if you only ever run it on the tasks you already scored it on.
+  correct: 2
+  explanation: >-
+    Your eval measures output quality, not what runs when the file is parsed, and those are separate
+    questions. An unestablished publisher cannot be checked, so the right move is to use a model
+    whose provenance you can state in one sentence.
+
+- id: q5
+  question: >-
+    Why is a model indexer the most exposed part of a home stack, even though it only reads files?
+  options:
+    - It needs the most RAM, so an attacker targets it to exhaust the machine.
+    - It parses every document you give it, so a malicious file reaches a parser you chose to trust.
+    - It is the only service with an outbound network route, so it can be used as a relay.
+    - It holds the model weights, so replacing it lets an attacker substitute the chat model.
+  correct: 1
+  explanation: >-
+    Indexing is the component that reads the widest variety of untrusted input — PDFs, spreadsheets,
+    images — through a stack of document parsers. That breadth, not privilege or bandwidth, is what
+    makes it the part to sandbox and the part to point at a narrow folder.

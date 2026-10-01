@@ -1,0 +1,137 @@
+- id: q1
+  question: >-
+    You want to run a Python library on your own machine that only knows how to call a hosted
+    provider's chat API and refuses to start without a key. Which endpoint and key do you use?
+  options:
+    - The native `/api/chat` endpoint, with the model name supplied as the key.
+    - The OpenAI-compatible `/v1/chat/completions` endpoint, with any non-empty string as the key.
+    - The `/api/tags` endpoint, which returns a token the client accepts as credentials.
+    - Neither works; the client only accepts keys issued by a hosted provider.
+  correct: 1
+  explanation: >-
+    Local runtimes expose the OpenAI-shaped API precisely so unmodified clients work against them,
+    and they do not validate the key. That also means reachability is the only protection there is,
+    which is why the endpoint must never be published.
+
+- id: q2
+  question: >-
+    Voice commands are slow only while a long chat answer is still generating. The two use
+    different models, and the server holds one model at a time with a long keep-alive. What is the
+    actual cost of each voice command during the collision?
+  options:
+    - Nothing extra; the voice request simply waits for the chat request to finish.
+    - The chat model is unloaded and the voice model loaded, which costs several seconds each time.
+    - The voice request is rejected, because the server only accepts one request at a time.
+    - Both models stay resident and share memory bandwidth, so each runs at half speed.
+  correct: 1
+  explanation: >-
+    Two different models with a single model slot means the first is evicted to make room for the
+    second, and the eviction plus load is the multi-second cost. Using one model for both jobs, or
+    giving a 32 GB box room for two, removes the swap entirely.
+
+- id: q3
+  question: >-
+    A colleague notices that a local chat interface is slower to start each day than the previous
+    one. What is the most likely explanation?
+  options:
+    - Automatic conversation titling makes an extra model call for each new chat.
+    - The model is being reloaded from disk because the server restarted overnight.
+    - The interface now checks for updates on every launch, which adds a round trip.
+    - Sign-up being enabled causes a fresh account creation for every session.
+  correct: 0
+  explanation: >-
+    Titling, tags and follow-up suggestions are convenience features implemented as extra model
+    calls. They look free because no one is typing when they happen, and each one costs a full
+    generation on a machine where generations are not free.
+
+- id: q4
+  question: >-
+    Your stack reports that the model server container exited with code 137 shortly after a request
+    that used a 32 000-token context. What is the most probable cause?
+  options:
+    - The container exceeded its memory limit and was killed from outside by the kernel.
+    - The image was built for the wrong CPU architecture and could not initialise.
+    - The internal network lost its gateway, so the runtime could not allocate more sockets.
+    - A health check ran out of retries and Compose shut the service down on purpose.
+  correct: 0
+  explanation: >-
+    A large context allocates a KV cache on top of the weights, and the two together can exceed a
+    limit that looks generous for short prompts. The kill comes from the kernel rather than the
+    application, which is why its own log stays silent; exit code 137 is the tell.
+
+- id: q5
+  question: >-
+    A user asks the model to summarise a web page by pasting its address, and a summary comes back.
+    Which request left the network, and who made it?
+  options:
+    - None; the local model fetched the page itself and summarised it locally.
+    - The model server fetched the page, because it is the component with network access.
+    - The interface's page loader fetched the page on the user's behalf, before the model saw it.
+    - The browser fetched the page and passed the whole response into the prompt.
+  correct: 2
+  explanation: >-
+    A local model cannot fetch anything. The interface does it, and that request reveals your IP
+    address and page content to the remote site. It is a small leak that experienced users miss,
+    because the feature works exactly as documented.
+
+- id: q6
+  question: >-
+    A user sets `OLLAMA_NUM_PARALLEL: 4` on a CPU-only box, hoping to serve several people at once.
+    What happens to each individual reply?
+  options:
+    - Each reply finishes in about a quarter of the time, since four requests share the work.
+    - Each reply takes roughly four times longer, since all four are generated sequentially.
+    - Each reply takes roughly twice as long, since the requests divide one memory bandwidth.
+    - Nothing changes, because parallel requests only affect GPU-backed models.
+  correct: 2
+  explanation: >-
+    Generation is bandwidth-bound, and a CPU has one bandwidth to give. Four concurrent requests do
+    not produce four times the bytes, so each one is slower rather than faster, and queueing them
+    would leave every user better off.
+
+- id: q7
+  question: >-
+    A client is configured against the OpenAI-compatible endpoint and, on a request with
+    `num_ctx: 8192`, quietly ignores the setting and returns answers using a different context
+    length than asked. Why does this happen?
+  options:
+    - The compatible endpoint validates token counts and refuses values above the model's default.
+    - The compatible endpoint only supports the model's native context, and smaller values are truncated.
+    - The compatible endpoint is a subset of the native API, and unrecognised options fall back to defaults.
+    - The client strips unknown fields before sending, so the server never receives them.
+  correct: 2
+  explanation: >-
+    Compatibility means matching the shape of the request, not the full set of options. Anything
+    the compatible surface does not recognise silently takes the server's default, which is a good
+    reason to prefer the native API for your own code and the compatible one for other people's
+    tools.
+
+- id: q8
+  question: >-
+    You publish the chat interface on your LAN address so your phone can reach it. What is the
+    single most important thing to check before leaving it that way?
+  options:
+    - That sign-up is disabled and authentication is on with a password from a password manager.
+    - That the container's memory limit is high enough to serve a phone and a laptop together.
+    - That the interface's page loader is disabled, so the phone does not fetch web pages.
+    - That the model server's keep-alive is long enough to avoid reloading on the phone.
+  correct: 0
+  explanation: >-
+    Publishing the port makes the interface reachable by every device on the network, and the
+    interface is a proxy to your model server, so account access is effectively server access.
+    Module 11 is where this decision gets made properly, with a VPN or not at all.
+
+- id: q9
+  question: >-
+    Your first answer after a quiet morning takes noticeably longer than usual. Later answers in
+    the same conversation are fast. What explains the difference?
+  options:
+    - The model was loaded from disk for the first request and has stayed resident since.
+    - The first request re-read a longer prompt, because the conversation was empty.
+    - The interface fetched a web page to build a suggested follow-up question.
+    - The container's memory limit was exceeded and Docker restarted the service silently.
+  correct: 0
+  explanation: >-
+    Loading weights from disk costs seconds, and the model server keeps a model resident for the
+    configured keep-alive period afterwards. That is also the cost a voice pipeline has to avoid,
+    which is why the keep-alive policy is a design decision in Module 8 rather than a default.

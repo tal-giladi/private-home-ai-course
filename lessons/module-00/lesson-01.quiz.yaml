@@ -1,0 +1,60 @@
+- id: q1
+  question: >-
+    You want local chat, question answering over your own files, and an offline voice assistant, all
+    on one computer. What is the constraint that decides every design choice in this course?
+  options:
+    - They share one pool of RAM, so each extra service reduces what the model can have.
+    - They share one network connection, so each extra service divides the available bandwidth.
+    - They share one model, so all three have to produce their answers from the same weights.
+    - They share one power supply, so each extra service reduces how long the box stays awake.
+  correct: 0
+  explanation: >-
+    A model must sit in RAM to answer, and the chat interface, Home Assistant, the voice services
+    and your browser all want what is left. That shared budget is why the course sizes a model
+    before it builds a pipeline around it, and why the RAM bill is its own lesson.
+
+- id: q2
+  question: >-
+    A colleague says their new assistant is "completely local, nothing leaves the house". What is
+    the right response while you are building this stack?
+  options:
+    - Accept it, because a program running on your own computer cannot send data anywhere.
+    - Ask what they actually tested, because local software still calls a hosted API if configured to.
+    - Reject it, because any tool that has to download a model must upload your conversations.
+    - Accept it for text only, because images are always sent away for processing.
+  correct: 1
+  explanation: >-
+    Where the inference runs and where the bytes go are two separate questions, and only the second
+    one answers the privacy question. Ollama's own FAQ states that local prompts are not sent back,
+    and it also documents a switch that disables its optional cloud models — a claim worth reading
+    and then checking yourself rather than inheriting from a colleague.
+
+- id: q3
+  question: >-
+    `homelab.py doctor` puts you in tier A on a 16 GB laptop. Which combination can that machine
+    realistically run at a speed you would call usable?
+  options:
+    - A 30B quantised chat model, with the voice services running alongside it.
+    - A 70B quantised chat model, loaded on demand rather than kept loaded.
+    - A 3–4B quantised chat model, with Whisper base or small doing the speech-to-text.
+    - A 7–8B quantised chat model, always given a 32 000-token context window.
+  correct: 2
+  explanation: >-
+    Tier A is the 16 GB band, and a 3–4B quantised model plus a small speech-to-text model is the
+    combination the course sizes for it. A 30B or 70B does not fit in that RAM budget at all, and
+    a 7–8B leaves nothing for the browser and the voice services even where it does fit.
+
+- id: q4
+  question: >-
+    Which of these is the one promise this course actually makes about your machine and your data?
+  options:
+    - A 7B model runs at a comfortable speed on any machine that has 16 GB of RAM installed.
+    - The retrieval module is required before the voice assistant can answer questions by voice.
+    - A machine with one memory stick reaches the same speed as one with two matching sticks.
+    - No lab needs a GPU, and every speed you read is either cited or is one you measure yourself.
+  correct: 3
+  explanation: >-
+    Nothing in the course assumes a graphics card, and the numbers are labelled: some are cited
+    with the machine they came from, the rest are commands for you to run on your own box. The
+    other three statements are all false, which is why the course teaches you to predict a speed
+    and then check it instead of trusting a table.

@@ -1,0 +1,69 @@
+# Custom sentences for Assist (Module 7, lesson 25)
+#
+# Language-sensitive block: every phrase here is something a person says. A translated version of
+# this course replaces the phrases and keeps the structure.
+#
+# How to use it:
+#   1. Put this file in your Home Assistant config folder as `custom_sentences/en.yaml`
+#      (or /config/demo/custom_sentences/en.yaml with the course stack).
+#   2. Add to configuration.yaml:
+#         intent_script: !include custom_sentences/en.yaml
+#   3. Restart Home Assistant, then check Developer Tools -> Assist, and try the sentences below.
+#
+# Copy the blocks you want. A file with one broken sentence makes Assist refuse all of them, so add
+# them a few at a time.
+
+language: en
+intents:
+  # ---- A household word the built-in sentences do not know -------------------------------------
+  SetTimerByWord:
+    speech:
+      - "set a {word} timer for {minutes} minutes"
+      - "start a {word} timer for {minutes} minutes"
+      - "time the {word} for {minutes} minutes"
+
+  WhoIsIn:
+    speech:
+      - "is {name} home"
+      - "is anyone called {name} home"
+      - "has {name} arrived"
+
+  # ---- A name the router cannot hear, so you add it --------------------------------------------
+  - SetBlindsByRoom:
+    speech:
+      - "drop the {area} blinds halfway"
+      - "half close the {area} blinds"
+    slots:
+      area:
+        - name: Living room
+        - name: Bedroom
+        - name: Study
+
+  # ---- House phrase that maps onto an existing entity -------------------------------------------
+  GoodNightScene:
+    speech:
+      - "good night"
+      - "good night house"
+      - "everything off"
+    action:
+      - stop: ""
+      - turn_off: []
+      - set_conversation_response: "Good night. Lights off, doors checked."
+
+  - action:
+      - turn_off:
+          entity_id:
+            - light.kitchen_light
+            - light.living_room_lamp
+            - light.hall_light
+            - switch.hall_heater
+
+  # ---- Questions Assist cannot answer, which is the point of Module 10 -------------------------
+  KitchenIsWarm:
+    speech:
+      - "is it warm in the kitchen"
+      - "is the kitchen warm"
+    action:
+      - set_conversation_response: >-
+          I do not know the kitchen temperature. I only know the bedroom and the living room,
+          because those are the only temperature sensors exposed to me.

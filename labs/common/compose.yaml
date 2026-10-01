@@ -1,0 +1,320 @@
+# The shared home lab stack.
+#
+# One file for the whole course. Each module adds services with a profile, so you never rebuild
+# from scratch and you never start more than you need:
+#
+#   docker compose up -d                      core: model server + chat UI
+#   docker compose --profile rag up -d        + vector store        (Module 6)
+#   docker compose --profile voice up -d      + speech in and out   (Modules 8-9)
+#   docker compose --profile secure up -d     + the exposure lab    (Module 11)
+#
+# Rules this file follows on purpose, explained in Module 11:
+#   * every image is pinned to an exact version tag - never "latest";
+#   * the model server and Home Assistant publish NO host port at all, and live on an
+#     "internal: true" network that Docker gives no route to the outside world;
+#   * the only published port is the chat interface, bound to 127.0.0.1 by default;
+#   * all state lives in named volumes, so an upgrade never eats your data.
+#
+# Copy .env.example to .env first. .env is gitignored and must stay that way.
+
+name: private-home-ai
+
+services:
+  # ---------------------------------------------------------------------------------------------
+  # Core - Model 3 onwards
+  # ---------------------------------------------------------------------------------------------
+  ollama:
+    image: ollama/ollama:0.35.0
+    container_name: homelab-ollama
+    restart: unless-stopped
+    # The `ai` network is internal, so this container has no route to the internet and cannot
+    # pull models itself. Downloading is a deliberate, one-off step that uses Docker's default
+    # bridge and writes into the same volume:
+    #
+    #   docker run --rm -v homelab-ollama-models:/root/.ollama ollama/ollama:0.35.0 ollama pull qwen3:4b
+    #
+    # See lesson 03.3.
+    environment:
+      # Keep two models at most in memory, and drop them five minutes after the last request.
+      # Both numbers are yours to change; they are the difference between "the stack is
+      # thrashing" and "the stack is fine" on a 16 GB machine.
+      OLLAMA_MAX_LOADED_MODELS: "2"
+      OLLAMA_KEEP_ALIVE: "5m"
+      OLLAMA_NUM_PARALLEL: "1"
+    volumes:
+      - ollama-models:/root/.ollama
+    networks:
+      - ai
+    # No "ports:" line. Nothing outside the Docker network can reach this API, and that is
+    # deliberate: the Ollama API has no authentication at all.
+    healthcheck:
+      test: ["CMD-SHELL", "ollama list >/dev/null 2>&1 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    deploy:
+      resources:
+        limits:
+          # Leave room for Home Assistant, the vector store and your browser. Set this to
+          # about 70% of your RAM; Module 2 teaches you to work the number out.
+          memory: ${OLLAMA_MEMORY_LIMIT:-12g}
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:v0.11.4
+    container_name: homelab-open-webui
+    restart: unless-stopped
+    profiles: ["core", "rag", "voice", "secure"]
+    environment:
+      # Point the UI at the model server by service name on the internal network.
+      OLLAMA_BASE_URL: "http://ollama:11434"
+      # A local account is required; there is no anonymous mode to fall back on.
+      WEBUI_AUTH: "True"
+      WEBUI_AUTH_TRUSTED_EMAIL_HEADER: ""
+      # No outbound calls at all. Module 12 proves the stack still works like this.
+      ENABLE_TAGS_GENERATION: "False"
+      ENABLE_TITLE_GENERATION: "False"
+      ENABLE_AUTOCOMPLETE_GENERATION: "False"
+      ENABLE_WEB_SEARCH: "False"
+      ENABLE_CODE_EXECUTION: "False"
+      # Scopes. Without this the UI is a nice shell and the model is a black box.
+      ENABLE_ADMIN_EXPORT: "True"
+      ENABLE_ADMIN_CHAT_ACCESS: "True"
+      # Content extraction happens on the CPU, next to the chat model. One at a time.
+      RAG_EMBEDDING_ENGINE: "ollama"
+      RAG_EMBEDDING_MODEL: "${EMBED_MODEL:-nomic-embed-text}"
+      RAG_EMBEDDING_CONTEXT_LENGTH: "2048"
+      RAG_TOP_K: "4"
+      # Private mode is on by default, but be explicit: nothing is shared between users.
+      ENABLE_CHANNELS: "False"
+    volumes:
+      - open-webui-db:/app/backend/data
+      - sample-docs:/data/documents:ro
+    networks:
+      - ai
+    ports:
+      # 127.0.0.1 only. Change this to a LAN address ONLY after Module 11, and only with
+      # authentication on. `homelab.py doctor` fails loudly if you publish on 0.0.0.0.
+      - "${WEBUI_BIND:-127.0.0.1}:8080:8080"
+    depends_on:
+      ollama:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O- http://localhost:8080/health >/dev/null 2>&1 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          memory: ${WEBUI_MEMORY_LIMIT:-2g}
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ---------------------------------------------------------------------------------------------
+  # Module 6 (optional) - RAG over your own files
+  # ---------------------------------------------------------------------------------------------
+  qdrant:
+    image: qdrant/qdrant:v1.19.1
+    container_name: homelab-qdrant
+    restart: unless-stopped
+    profiles: ["rag", "voice", "secure"]
+    environment:
+      QDRANT__SERVICE__HTTP_PORT: "6333"
+      QDRANT__STORAGE__PERFORMANCE__MAX_OPTIMIZATION_THREADS: "2"
+    volumes:
+      - qdrant-data:/qdrant/storage
+    networks:
+      - ai
+    # No published port. The UI talks to Qdrant over the internal network; you do not need
+    # to reach it from a browser to use the stack.
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c ':> /dev/tcp/127.0.0.1/6333' || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: ${QDRANT_MEMORY_LIMIT:-1g}
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "2"
+
+  # ---------------------------------------------------------------------------------------------
+  # Module 7 onwards - Home Assistant
+  # ---------------------------------------------------------------------------------------------
+  homeassistant:
+    image: ghcr.io/home-assistant/home-assistant:2026.9.4
+    container_name: homelab-homeassistant
+    restart: unless-stopped
+    profiles: ["core", "rag", "voice", "secure"]
+    environment:
+      TZ: "${TZ:-UTC}"
+    volumes:
+      - homeassistant-config:/config
+      - ./samples/en/homeassistant:/config/demo:ro
+    networks:
+      - ai
+      - voice
+    # No host port. You reach Home Assistant through the chat-UI port (reverse proxy, Module 11)
+    # or, during development, by adding "127.0.0.1:8123:8123" here and reading Module 11 first.
+    depends_on:
+      ollama:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: ${HA_MEMORY_LIMIT:-2g}
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ---------------------------------------------------------------------------------------------
+  # Modules 8-9 (voice) - Wyoming services. Internal only; the satellite runs on the host.
+  # ---------------------------------------------------------------------------------------------
+  wyoming-whisper:
+    image: rhasspy/wyoming-whisper:1.4.0
+    container_name: homelab-whisper
+    restart: unless-stopped
+    profiles: ["voice", "secure"]
+    command:
+      - --model
+      - ${STT_MODEL:-base}
+      - --language
+      - ${LANG_TAG:-en}
+      - --download-dir
+      - /data
+    volumes:
+      - whisper-models:/data
+    networks:
+      - voice
+    deploy:
+      resources:
+        limits:
+          # Whisper `base` needs well under a gigabyte; `small` about double. See Module 8.
+          memory: ${WHISPER_MEMORY_LIMIT:-2g}
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "2"
+
+  wyoming-piper:
+    image: rhasspy/wyoming-piper:1.3.0
+    container_name: homelab-piper
+    restart: unless-stopped
+    profiles: ["voice", "secure"]
+    command:
+      - --voice
+      - ${TTS_VOICE:-en_US-lessac-medium}
+      - --download-dir
+      - /data
+    volumes:
+      - piper-voices:/data
+    networks:
+      - voice
+    deploy:
+      resources:
+        limits:
+          memory: ${PIPER_MEMORY_LIMIT:-1g}
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "2"
+
+  wyoming-openwakeword:
+    image: rhasspy/wyoming-openwakeword:1.1.0
+    container_name: homelab-wakeword
+    restart: unless-stopped
+    profiles: ["voice", "secure"]
+    command:
+      - --preload-model
+      - hey_jason
+    networks:
+      - voice
+    deploy:
+      resources:
+        limits:
+          memory: 256m
+    logging:
+      driver: json-file
+      options:
+        max-size: "5m"
+        max-file: "2"
+
+  # ---------------------------------------------------------------------------------------------
+  # Module 11 - the isolated exposure lab. Never attached to ai, never published.
+  # ---------------------------------------------------------------------------------------------
+  exposure-victim:
+    image: ollama/ollama:0.35.0
+    container_name: homelab-exposure-victim
+    restart: "no"
+    profiles: ["secure"]
+    entrypoint: ["ollama", "serve"]
+    environment:
+      OLLAMA_HOST: "0.0.0.0"   # the mistake, made on purpose, inside an isolated lab
+      OLLAMA_KEEP_ALIVE: "0"
+    networks:
+      - exposure
+    deploy:
+      resources:
+        limits:
+          memory: 2g
+
+  exposure-attacker:
+    image: alpine:3.20
+    container_name: homelab-exposure-attacker
+    restart: "no"
+    profiles: ["secure"]
+    depends_on:
+      - exposure-victim
+    networks:
+      - exposure
+    entrypoint: ["sh", "-c", "sleep 3600"]
+
+networks:
+  # internal: true means Docker attaches no gateway to this network. Containers on it can talk
+  # to each other and to nothing else, including the internet.
+  ai:
+    name: homelab-ai
+    internal: true
+
+  voice:
+    name: homelab-voice
+    internal: true
+
+  # The exposure lab gets its own, also internal, and no other container is ever attached.
+  exposure:
+    name: homelab-exposure
+    internal: true
+
+volumes:
+  ollama-models:
+    name: homelab-ollama-models
+  open-webui-db:
+    name: homelab-open-webui-db
+  qdrant-data:
+    name: homelab-qdrant-data
+  homeassistant-config:
+    name: homelab-ha-config
+  whisper-models:
+    name: homelab-whisper-models
+  piper-voices:
+    name: homelab-piper-voices
+  sample-docs:
+    name: homelab-sample-docs

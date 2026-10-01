@@ -1,0 +1,191 @@
+# Demo entities for Home Assistant (Module 7)
+#
+# No smart-home hardware needed. These are template entities and demo helpers: they exist so the
+# voice path has something real to control, and so you can see a light "turn on" without buying a
+# bulb.
+#
+# How to use it:
+#   1. Copy the whole file to your Home Assistant config directory as `demo.yaml`.
+#      With the course stack, that is the `homelab-ha-config` volume; the compose file already
+#      mounts this folder read-only at /config/demo.
+#   2. Add one line to configuration.yaml:
+#         !include demo.yaml
+#   3. Restart Home Assistant, then check Settings -> Devices & services, or the Developer Tools
+#      -> States page, and you should see the entities below.
+#
+# Language-sensitive block: the entity names are what you have to *say*. They are marked so a
+# translated version of this course changes the names and nothing else.
+
+language: en
+demo: true
+
+template:
+  - binary_sensor:
+      - name: "Front door"
+        unique_id: demo_front_door
+        device_class: door
+        state: "{{ is_state('input_boolean.demo_front_door_open', 'on') }}"
+
+  - sensor:
+      # A slow sine wave, so a thermostat has something to read and report.
+      - name: "Living room temperature"
+        unique_id: demo_living_room_temperature
+        unit_of_measurement: "°C"
+        device_class: temperature
+        state: >-
+          {{ (20.5 + (1.5 | sin((as_timestamp(now()) / 3600) * 0.7)) * 3) | round(1) }}
+
+      - name: "Bedroom temperature"
+        unique_id: demo_bedroom_temperature
+        unit_of_measurement: "°C"
+        device_class: temperature
+        state: >-
+          {{ (19.0 + (1.2 | sin((as_timestamp(now()) / 3600) * 0.5)) * 3) | round(1) }}
+
+      - name: "Hallway humidity"
+        unique_id: demo_hallway_humidity
+        unit_of_measurement: "%"
+        device_class: humidity
+        state: >-
+          {{ (48 + (6 | sin((as_timestamp(now()) / 1800) * 0.4)) * 6) | round(0) }}
+
+  - sensor:
+      - name: "Washing machine state"
+        unique_id: demo_washing_machine_state
+        state: >-
+          {% set s = states('input_select.demo_washing_machine_state') %}
+          {{ s if s not in ['unknown', 'unavailable'] else 'off' }}
+
+  - sensor:
+      - name: "Dishwasher state"
+        unique_id: demo_dishwasher_state
+        state: >-
+          {% set s = states('input_select.demo_dishwasher_state') %}
+          {{ s if s not in ['unknown', 'unavailable'] else 'off' }}
+
+  - sensor:
+      - name: "Energy use today"
+        unique_id: demo_energy_today
+        unit_of_measurement: "kWh"
+        state: "{{ states('sensor.demo_power_meter') | float(0) | round(2) }}"
+
+# Lights. template lights with a brightness that survives a restart.
+light:
+  - platform: template
+    name: "Kitchen light"
+    unique_id: demo_kitchen_light
+    icon: mdi:ceiling-light
+    optimistic: false
+    level_template: "{{ state_attr('light.demo_kitchen_light', 'brightness') | int(0) }}"
+    turn_on:
+      - service: input_boolean.turn_on
+        target: { entity_id: input_boolean.demo_kitchen_light_on }
+    turn_off:
+      - service: input_boolean.turn_off
+        target: { entity_id: input_boolean.demo_kitchen_light_on }
+
+  - platform: template
+    name: "Living room lamp"
+    unique_id: demo_living_room_lamp
+    icon: mdi:lamp
+    optimistic: false
+    level_template: "{{ state_attr('light.demo_living_room_lamp', 'brightness') | int(0) }}"
+    turn_on:
+      - service: input_boolean.turn_on
+        target: { entity_id: input_boolean.demo_living_room_lamp_on }
+    turn_off:
+      - service: input_boolean.turn_off
+        target: { entity_id: input_boolean.demo_living_room_lamp_on }
+
+  - platform: template
+    name: "Hall light"
+    unique_id: demo_hall_light
+    icon: mdi:lightbulb
+    optimistic: false
+    level_template: "{{ state_attr('light.demo_hall_light', 'brightness') | int(0) }}"
+    turn_on:
+      - service: input_boolean.turn_on
+        target: { entity_id: input_boolean.demo_hall_light_on }
+    turn_off:
+      - service: input_boolean.turn_off
+        target: { entity_id: input_boolean.demo_hall_light_on }
+
+# Heating, because "it is cold in here" needs something to turn on.
+climate:
+  - platform: generic_thermostat
+    name: "Hall heater"
+    unique_id: demo_hall_heater
+    heater: switch.demo_hall_heater
+    target_temperature_step: 0.5
+    min_temp: 5
+    max_temp: 30
+    initial_target_temp: 19
+    comfort_temperature: 20
+    eco_temperature: 17
+    away_temperature: 14
+    mode_heat:
+      - service: switch.turn_on
+        target: { entity_id: switch.demo_hall_heater }
+    mode_off:
+      - service: switch.turn_off
+        target: { entity_id: switch.demo_hall_heater }
+    hold:
+      - service: switch.turn_off
+        target: { entity_id: switch.demo_hall_heater }
+
+switch:
+  - platform: template
+    name: "Hall heater"
+    unique_id: demo_hall_heater
+    optimistic: true
+
+lock:
+  - platform: template
+    name: "Front door"
+    unique_id: demo_front_door_lock
+    optimistic: true
+    # Deliberately refuses to unlock. Lesson 10.3 explains why this entity is never exposed to the
+    # LLM without a confirmation step, and why this one is the example that makes the point.
+    unlock:
+      - service: persistent_notification.create
+        data:
+          title: "Blocked"
+          message: "Demo lock refuses to unlock. This is deliberate: see lesson 10.3."
+
+input_boolean:
+  - demo_kitchen_light_on:
+      name: "Kitchen light (state)"
+  - demo_living_room_lamp_on:
+      name: "Living room lamp (state)"
+  - demo_hall_light_on:
+      name: "Hall light (state)"
+  - demo_front_door_open:
+      name: "Front door open"
+
+input_select:
+  demo_washing_machine_state:
+    name: "Washing machine"
+    options: ["off", "on", "running", "drying", "error"]
+    initial: "off"
+  demo_dishwasher_state:
+    name: "Dishwasher"
+    options: ["off", "on", "running"]
+    initial: "off"
+
+sensor:
+  - platform: template
+    name: "Power meter"
+    unique_id: demo_power_meter
+    unit_of_measurement: "W"
+    state: >-
+      {# A plausible idle figure for a desktop that is running an AI stack. Module 12 measures
+         yours; this number exists so the voice path has something to report. #}
+      {{ (28 + (6 | sin((as_timestamp(now()) / 600) * 0.9)) * 6) | round(0) }}
+
+shopping_list:
+  - name: "Shopping list"
+
+timer:
+  demo:
+    - name: "Kitchen"
+    - name: "Laundry"

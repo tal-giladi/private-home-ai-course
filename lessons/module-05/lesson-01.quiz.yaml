@@ -1,0 +1,74 @@
+- id: q1
+  question: >-
+    A 16 GB laptop runs a 4B chat model at roughly 7 tokens/second, or an 8B model at roughly 4
+    tokens/second for the same job. What is the strongest argument for the smaller one?
+  options:
+    - The 4B model answers factual questions more reliably than the 8B model.
+    - The 4B model leaves roughly 2.4 GB for the browser, the voice services and the operating system.
+    - The 4B model downloads in half the time, so the first use is quicker.
+    - The 4B model supports a longer context window than the 8B model does.
+  correct: 1
+  explanation: >-
+    On a fixed memory budget, every gigabyte the chat model holds is a gigabyte Home Assistant,
+    Whisper, Piper and your browser cannot have. The 8B does not simply run slower — it crowds out
+    the rest of the stack, which is the failure this course spends Module 2 preventing.
+
+- id: q2
+  question: >-
+    Which statement about an embedding model is correct?
+  options:
+    - It is a chat model that has been fine-tuned to return numbers instead of words.
+    - It is a separate kind of model, downloaded differently, that maps text to fixed-length vectors.
+    - It must be quantised to Q4_K_M to run on a CPU at all.
+    - It has to be loaded into RAM at the same time as the chat model for answers to be accurate.
+  correct: 1
+  explanation: >-
+    Embeddings are not chat models with a different output format. They are trained to place texts
+    that mean similar things close together, they are pulled separately from the chat registry, and
+    they are only needed while indexing or querying, not during a conversation.
+
+- id: q3
+  question: >-
+    You set `TOOL_MODEL` to a different, smaller model than `CHAT_MODEL`, leave
+    `OLLAMA_MAX_LOADED_MODELS` at 1, and then alternate a chat question with a voice tool request.
+    What is the likely effect?
+  options:
+    - Both requests get faster, because the smaller model is easier to load from disk.
+    - Each request waits for the other to finish, but neither is slowed by a model swap.
+    - Each alternation unloads one model and loads the other, costing seconds on every switch.
+    - The server refuses the second request, because only one model may be used per session.
+  correct: 2
+  explanation: >-
+    With one model slot and two different models, every switch is an eviction plus a load. That is
+    the collision Module 4 measured, and it lands hardest exactly where latency budget is
+    tightest — the spoken command path.
+
+- id: q4
+  question: >-
+    You replace a 4B model's Q4_K_M weights with F16 versions to "get the full quality". What is
+    the real cost at home?
+  options:
+    - The model runs noticeably slower at every prompt length, because F16 moves twice the bytes.
+    - The file roughly doubles and resident RAM roughly doubles, for a gain a home assistant will not show.
+    - F16 is only supported on GPUs, so the model fails to load at all on a CPU.
+    - The context window doubles, because F16 leaves room for more tokens in the same memory.
+  correct: 1
+  explanation: >-
+    F16 stores every weight at twice the precision and roughly twice the bytes, so every token
+    reads twice the data and the model occupies twice the RAM. The quality difference is small
+    compared with losing the memory that Whisper, Piper and Home Assistant need.
+
+- id: q5
+  question: >-
+    Your retrieval index returns chunks that are thematically similar but factually wrong for the
+    question asked. Nothing errors, and the answers cite real text. What is the likely cause?
+  options:
+    - The vector store is storing the chunks as compressed integers rather than as vectors.
+    - A chat model is being used to produce embeddings, so the vectors do not represent meaning well.
+    - The documents were chunked too large, so every answer contains the right words in the wrong order.
+    - The embedding model expects a prefix that was omitted, which shifts every vector slightly.
+  correct: 1
+  explanation: >-
+    A chat model produces tokens, not vectors; point an indexer at one and it will return numbers
+    that carry no reliable notion of semantic similarity. Nothing about that fails loudly, which is
+    why retrieval quality problems often look like chunking problems and get debugged for hours.

@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 400" width="760" height="400" role="img" aria-labelledby="t d" font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif">
+  <title id="t">Network zones around a home AI stack</title>
+  <desc id="d">The internet at the top, the home router with no port forwards, then a trusted local network holding the AI machine and phones, and a separate IoT network for untrusted devices. Remote access from outside goes through a VPN into the trusted network only.</desc>
+
+  <rect x="0" y="0" width="760" height="400" fill="#fbfbfd"/>
+  <text x="24" y="30" font-size="18" font-weight="600" fill="#16181d">Where the stack sits on your network</text>
+  <text x="24" y="50" font-size="13" fill="#5b6270">Two questions decide everything: who can reach it, and what do they get if they do.</text>
+
+  <rect x="24" y="70" width="712" height="56" rx="12" fill="#fdeeee" stroke="#b3271e" stroke-width="1.5"/>
+  <text x="44" y="94" font-size="13" font-weight="600" fill="#8c1d16">The internet</text>
+  <text x="44" y="114" font-size="12" fill="#6d2a25">Untrusted. There is a route to your home only through the router, and it has no exceptions for you.</text>
+
+  <rect x="24" y="140" width="712" height="56" rx="12" fill="#f2f6f2" stroke="#2e7d4f" stroke-width="1.5"/>
+  <text x="44" y="164" font-size="13" font-weight="600" fill="#1d5c38">Your router</text>
+  <text x="44" y="184" font-size="12" fill="#2b3b31">No port forwards. No UPnP. A guest or IoT network, so cheap devices cannot reach the AI machine.</text>
+
+  <rect x="24" y="210" width="446" height="164" rx="12" fill="#ffffff" stroke="#2f5fd0" stroke-width="1.5"/>
+  <text x="44" y="234" font-size="13" font-weight="600" fill="#1d3f8f">Trusted network</text>
+  <text x="44" y="252" font-size="11" fill="#41507a">the things you own and update</text>
+
+  <rect x="44" y="264" width="196" height="44" rx="8" fill="#eef4ff" stroke="#2f5fd0"/>
+  <text x="56" y="282" font-size="12" font-weight="600" fill="#16181d">The AI machine</text>
+  <text x="56" y="298" font-size="10" fill="#41507a">stack, ports, models, files</text>
+
+  <rect x="254" y="264" width="196" height="44" rx="8" fill="#eef4ff" stroke="#2f5fd0"/>
+  <text x="266" y="282" font-size="12" font-weight="600" fill="#16181d">Your phone and laptop</text>
+  <text x="266" y="298" font-size="10" fill="#41507a">the only clients that need in</text>
+
+  <rect x="44" y="318" width="406" height="42" rx="8" fill="#f7f7fa" stroke="#8b8f9a"/>
+  <text x="56" y="336" font-size="12" fill="#16181d">Model server: bound to loopback, never published</text>
+  <text x="56" y="352" font-size="11" fill="#5b6270">Chat UI: one port, real account, reachable only from here or over the VPN</text>
+
+  <rect x="490" y="210" width="246" height="164" rx="12" fill="#ffffff" stroke="#c9741a" stroke-width="1.5" stroke-dasharray="6 4"/>
+  <text x="510" y="234" font-size="13" font-weight="600" fill="#8a4a08">IoT network</text>
+  <text x="510" y="252" font-size="11" fill="#7a5a33">guest or VLAN</text>
+
+  <rect x="510" y="264" width="206" height="44" rx="8" fill="#fdf1e3" stroke="#c9741a"/>
+  <text x="522" y="282" font-size="12" font-weight="600" fill="#16181d">Bulbs, plugs, cameras</text>
+  <text x="522" y="298" font-size="10" fill="#7a5a33">unpatched, never updated</text>
+
+  <rect x="510" y="318" width="206" height="42" rx="8" fill="#ffffff" stroke="#c9741a"/>
+  <text x="522" y="336" font-size="12" fill="#16181d">Cannot reach the AI machine</text>
+  <text x="522" y="352" font-size="11" fill="#7a5a33">they talk to Home Assistant, not to the model server</text>
+</svg>

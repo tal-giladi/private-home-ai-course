@@ -1,0 +1,15 @@
+Guest Wi-Fi
+===========
+
+Network:  Guest-2G
+Password: welcome-in-the-summer
+
+This network is isolated from the home network. Guests can reach the internet; they cannot reach
+the router admin panel, the Home Assistant instance, or the AI machine on 192.168.1.50.
+
+House wifi: Brighton-5G / purple-otter-42
+Please do not hand this one out. If you need it, ask.
+
+If the guest network is slow, it is because everything IoT is on it by design. Do not move smart
+bulbs back onto the house network to make it faster - that undoes the isolation and puts a
+firmware bug three devices away from your files.

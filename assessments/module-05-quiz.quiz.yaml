@@ -1,0 +1,141 @@
+- id: q1
+  question: >-
+    Your 16 GB machine currently runs a 4B chat model at about 7 tokens/second. Someone suggests an
+    8B model that benchmarks better. What should you check before accepting?
+  options:
+    - Whether the 8B model's licence permits private use, since that is the only new constraint.
+    - What the 2.4 GB of extra RAM would displace in your stack, and what that would cost you.
+    - Whether the 8B model supports streaming, since a non-streaming model feels slow on a CPU.
+    - Whether the 8B model was quantised at Q4_K_M or at a higher precision such as Q8_0.
+  correct: 1
+  explanation: >-
+    On a fixed budget every gigabyte the chat model holds is a gigabyte Home Assistant, Whisper,
+    Piper and your browser cannot have, and the 8B would also run at roughly half the speed. The
+    benchmark improvement is real; whether it is worth displacing the rest of the stack is the
+    question only your RAM bill can answer.
+
+- id: q2
+  question: >-
+    You ask a model to summarise a warranty document. It produces fluent, confident prose that
+    contradicts the document, because it answered from its training data instead of the text. How
+    should your eval set treat this?
+  options:
+    - A partial pass, because the answer is well written and about the right appliance.
+    - A fail, because a grounded-answer task passes only when the answer is supported by the source.
+    - A pass, provided no numeric dates were invented.
+    - A pass on quality and a fail on speed, since the wording is not the problem being tested.
+  correct: 1
+  explanation: >-
+    A grounded-answer task is judged on support from the source, not on fluency, and a model
+    answering from memory is precisely the failure the whole stack exists to prevent. Scores that
+    reward well-written answers will rank a hallucinating model above an honest one.
+
+- id: q3
+  question: >-
+    Your eval set was written after you had already picked a favourite model. Which conclusion is
+    now unreliable?
+  options:
+    - The speed column, because timing does not depend on which prompts were chosen.
+    - Every result, because the prompts were chosen under the influence of the preferred model.
+    - Nothing, as long as the pass conditions were written down in advance.
+    - Only the retrieval tasks, because prompt choice affects generation but not search.
+  correct: 1
+  explanation: >-
+    Prompts written after a favourite exists tend to match that model's strengths, and the bias is
+    invisible because you are the only person who knows when you wrote them. Write the set before
+    you compare anything, and give each task a reason it is included.
+
+- id: q4
+  question: >-
+    You want a voice assistant that answers "it's cold in here" by turning on the hall heater. Your
+    two candidate models differ mainly in how well they follow an instruction format. What should
+    the eval set measure?
+  options:
+    - How well the reply explains that the hall heater has been switched on.
+    - Whether the right entity was acted on, scoring pass, wrong action or refusal rather than the wording.
+    - Whether the reply mentions the current room temperature, since that is what a user expects.
+    - How long the reply took to generate, since latency is the only measurable difference.
+  correct: 1
+  explanation: >-
+    On action tasks the only thing that matters is what the assistant did. A small model that
+    refuses clearly is more useful than one that acts wrongly and apologises politely, and scoring
+    wording would reward the second one.
+
+- id: q5
+  question: >-
+    A model file is offered on a direct link in a `.pth` container, described as a faster lossless
+    build of a model you already use. What is the correct first action?
+  options:
+    - Download it into a scratch folder and test it, because a bad file only fails when it is loaded.
+    - Check its SHA-256 checksum against a value published by the original author.
+    - Do not use it, because these formats execute code during loading rather than holding data.
+    - Download it and load it inside a container, which contains whatever the file executes.
+  correct: 2
+  explanation: >-
+    Pickle-based formats run arbitrary Python as they deserialise, so opening one is running
+    untrusted code with whatever privileges the process has — which in an indexer means access to
+    every file you pointed it at. A checksum helps with tampering, not with a format that executes
+    on load, and a container contains the consequences rather than preventing them.
+
+- id: q6
+  question: >-
+    Your eval shows the 4B model passes 18 of 20 tasks and runs at 7 tokens/second; the 1B passes
+    15 of 20 at 19 tokens/second. Which is the better choice for a voice pipeline with a three-second
+    budget per command?
+  options:
+    - The 1B, because 19 tokens/second fits the budget and two failed tasks can be fixed with prompts.
+    - The 4B, because five extra passes is a large margin and the latency difference is under a second.
+    - The 1B for chat and the 4B for actions, since the speed difference only matters on long answers.
+    - Neither, because a voice pipeline should not use a general chat model at all.
+  correct: 1
+  explanation: >-
+    The latency difference between 7 and 19 tokens/second is roughly a second per answer, which a
+    three-second budget can absorb, while three additional passes on your own tasks is a real
+    quality difference. This is exactly the trade-off the speed column exists to make visible, and
+    the decision should be written down with both numbers in it.
+
+- id: q7
+  question: >-
+    You pick a text-to-speech voice whose repository entry states no licence. The engine itself is
+    clearly licensed. Is that enough?
+  options:
+    - Yes, because the voice is data used by a licensed engine rather than a work in its own right.
+    - Yes, as long as the voice is not sold; home use is too small a scale to matter.
+    - No, because each voice is a separate work licensed separately from the engine that speaks it.
+    - No, but only if the voice is used in something published; private use needs no licence at all.
+  correct: 2
+  explanation: >-
+    Hundreds of community voices carry different terms — MIT, CC-BY, or whatever the donor chose —
+    and the engine's licence says nothing about them. Checking each voice's own model card is a
+    thirty-second habit that only has to happen once per voice.
+
+- id: q8
+  question: >-
+    Your stack indexes a folder of household documents, and you want to ask questions over it. What
+    makes the indexer the most exposed component in the stack?
+  options:
+    - It needs the most RAM, so it is the first thing to fail under memory pressure.
+    - It holds the chat model's weights, so replacing it substitutes the model.
+    - It parses the widest variety of files you give it, so a hostile document reaches a parser.
+    - It is the only service with an outbound network route, making it usable as a relay.
+  correct: 2
+  explanation: >-
+    Indexing runs your PDFs, spreadsheets and images through a stack of document parsers, which is
+    a far wider attack surface than a chat interface. That breadth is why the next lesson is about
+    which folders to point at it, rather than which model to use.
+
+- id: q9
+  question: >-
+    Two models tie at 17 of 20 on your eval set. One is Apache-2.0 from a named publisher; the
+    other is a community licence from a research group with a published model card. Which do you
+    install, and what is the reason?
+  options:
+    - The community one, because research licences are usually more permissive in practice.
+    - The Apache-2.0 one, because with equal results the clearer licence keeps more options open.
+    - Whichever loads faster, since licence terms do not affect a private installation.
+    - The community one, because a research group is more likely to have tested it thoroughly.
+  correct: 1
+  explanation: >-
+    Both are usable at home, so the tie-break should go to the licence with no conditions attached.
+    It costs you nothing today and keeps you free to share, redistribute or reuse the setup later,
+    which is the kind of option it is worth having and you will not miss until you need it.

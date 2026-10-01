@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Sizing a home AI stack — educational model</title>
+    <!--
+      Educational model used in lesson 07 of the Private Home AI course.
+
+      Runs entirely offline: no network requests, no CDN, no fonts, no storage, no parent access.
+      It is a teaching aid for one idea - generation speed is bounded by memory bandwidth, and
+      everything else in the box competes for the same RAM. It is not a benchmark and it does not
+      know your machine. Measure yours; see references/benchmarks.md.
+    -->
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <a class="skip" href="#results">Skip to the results</a>
+
+    <header>
+      <p class="eyebrow">Educational model</p>
+      <h1>Will this model fit, and how fast will it be?</h1>
+      <p class="lede">
+        Pick the machine and the model. The point of this page is not the exact number — it is that
+        you can predict the answer roughly, then go and measure it for real.
+      </p>
+    </header>
+
+    <main>
+      <form id="controls" novalidate>
+        <fieldset>
+          <legend>Your machine</legend>
+
+          <p class="field">
+            <label for="ram">Total RAM</label>
+            <select id="ram" name="ram">
+              <option value="8">8 GB — Raspberry Pi 5, very small mini PC</option>
+              <option value="16" selected>16 GB — a 2019+ laptop</option>
+              <option value="32">32 GB — a desktop or a bigger laptop</option>
+              <option value="64">64 GB — a workstation</option>
+            </select>
+          </p>
+
+          <p class="field">
+            <label for="memory">Memory type and speed</label>
+            <select id="memory" name="memory">
+              <option value="d4-3200">DDR4-3200 (budget laptop)</option>
+              <option value="d4-3600">DDR4-3600</option>
+              <option value="d5-5600" selected>DDR5-5600 (recent laptop)</option>
+              <option value="d5-6000">DDR5-6000</option>
+              <option value="d5-6400">DDR5-6400 (desktop, overclocked)</option>
+            </select>
+          </p>
+
+          <p class="field">
+            <label for="channels">How many RAM sticks are fitted?</label>
+            <select id="channels" name="channels">
+              <option value="1">One — single channel, about half the bandwidth</option>
+              <option value="2" selected>Two, or soldered dual-channel memory</option>
+            </select>
+          </p>
+
+          <p class="field">
+            <label for="cores">Physical CPU cores</label>
+            <input id="cores" name="cores" type="number" min="1" max="64" step="1" value="8" />
+          </p>
+
+          <p class="field">
+            <label for="apple">Apple Silicon (unified memory)</label>
+            <span class="check">
+              <input id="apple" name="apple" type="checkbox" />
+              <span>Yes — the memory bus feeds the CPU directly, so the x86 numbers do not apply</span>
+            </span>
+          </p>
+        </fieldset>
+
+        <fieldset>
+          <legend>The model</legend>
+
+          <p class="field">
+            <label for="model">Model</label>
+            <select id="model" name="model">
+              <option value="1">1B — a Raspberry Pi, or a laptop that has to share with everything</option>
+              <option value="1.5">1.5B</option>
+              <option value="3" selected>3B — the tier A sweet spot</option>
+              <option value="4">4B</option>
+              <option value="7">7B</option>
+              <option value="8">8B</option>
+              <option value="14">14B</option>
+              <option value="32">32B</option>
+            </select>
+          </p>
+
+          <p class="field">
+            <label for="quant">Quantisation</label>
+            <select id="quant" name="quant">
+              <option value="q4">Q4_K_M — the default, smallest useful</option>
+              <option value="q5">Q5_K_M — noticeably better, about 20% bigger</option>
+              <option value="q6">Q6_K — close to the original, about 50% bigger than Q4</option>
+              <option value="q8" selected>Q8_0 — nearly lossless, roughly double Q4</option>
+              <option value="f16">F16 — the original weights, four times the size of Q4</option>
+            </select>
+          </p>
+
+          <p class="field">
+            <label for="context">Context window (tokens)</label>
+            <select id="context" name="context">
+              <option value="2048">2 048 — a home chat, plenty</option>
+              <option value="4096" selected>4 096</option>
+              <option value="8192">8 192</option>
+              <option value="16384">16 384</option>
+              <option value="32768">32 768</option>
+              <option value="131072">131 072</option>
+            </select>
+          </p>
+        </fieldset>
+
+        <fieldset>
+          <legend>What else is running at the same time</legend>
+          <p class="note">These share your RAM with the model. Add them one at a time and watch the headroom.</p>
+
+          <p class="check"><input id="svc-chat" type="checkbox" checked /><span>Chat interface (Open WebUI) — 1.2 GB</span></p>
+          <p class="check"><input id="svc-ha" type="checkbox" /><span>Home Assistant — 1.0 GB</span></p>
+          <p class="check"><input id="svc-voice" type="checkbox" /><span>Voice: speech-to-text, text-to-speech, wake word — 1.6 GB</span></p>
+          <p class="check"><input id="svc-rag" type="checkbox" /><span>Vector store and embedder — 1.2 GB</span></p>
+          <p class="check"><input id="svc-browser" type="checkbox" checked /><span>A browser with ten tabs open — 1.5 GB</span></p>
+          <p class="check"><input id="svc-os" type="checkbox" checked /><span>Operating system and background processes — 2.5 GB</span></p>
+        </fieldset>
+
+        <fieldset>
+          <legend>Your speed target</legend>
+          <p class="field">
+            <label for="target">At least this many tokens per second, so it does not feel broken</label>
+            <select id="target" name="target">
+              <option value="3">3 tok/s — I mostly want it to exist</option>
+              <option value="5" selected>5 tok/s — readable, and a future you will thank</option>
+              <option value="10">10 tok/s — feels like a product</option>
+              <option value="20">20 tok/s — more than a person can read</option>
+            </select>
+          </p>
+        </fieldset>
+      </form>
+
+      <section id="results" aria-labelledby="results-heading">
+        <h2 id="results-heading">What this predicts</h2>
+
+        <p id="verdict" class="verdict" role="status"></p>
+
+        <h3>Predicted generation speed</h3>
+        <p id="speed-line" class="big"></p>
+        <div class="bar" role="img" aria-labelledby="bar-label">
+          <div id="bar-fill" class="bar-fill"></div>
+          <div id="bar-target" class="bar-target"></div>
+        </div>
+        <p id="bar-label" class="note"></p>
+
+        <h3>Where the memory goes</h3>
+        <table id="bill">
+          <caption class="note">The RAM bill. Weights plus KV cache plus everything else on the box.</caption>
+          <thead>
+            <tr><th scope="col">Item</th><th scope="col">GB</th><th scope="col">Note</th></tr>
+          </thead>
+          <tbody></tbody>
+          <tfoot>
+            <tr><th scope="row">Total</th><td id="bill-total">—</td><td id="bill-head">—</td></tr>
+          </tfoot>
+        </table>
+
+        <h3>Why</h3>
+        <p id="why" class="note"></p>
+
+        <p class="disclaimer">
+          <strong>This is an estimate, not a measurement.</strong> It ignores cache behaviour, other
+          processes, thermal throttling and the software's own overheads, and real machines land
+          anywhere from 50% to 80% of the raw bandwidth figure. Run
+          <code>python homelab.py bench</code> and use that number instead. This page exists to make
+          you predict before you measure, and to make the prediction wrong in an interesting way.
+        </p>
+      </section>
+    </main>
+
+    <script type="module" src="app.js"></script>
+  </body>
+</html>

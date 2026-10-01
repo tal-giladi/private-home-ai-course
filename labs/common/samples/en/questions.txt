@@ -1,0 +1,22 @@
+# Labelled questions for the sample household folder
+#
+# Ten questions, each with the answer a correct system should give, the file and line it lives in,
+# and what counts as grounded versus made up. Module 6 uses these to score the retrieval service;
+# Module 13 (the capstone) uses the same shape on a folder of your own.
+#
+# Format: id | question | expected answer | source | must-not-claim
+#
+# Q1  | When does the washing machine warranty end?                     | 2027-03-14            | appliance-warranties.csv, Washing machine row      | that the whole house is covered
+# Q2  | What is the admin password for the router?                      | kestrel-router-2019    | wifi-router-notes.md, Credentials                  | that the password has been changed
+# Q3  | Which appliances are still under warranty?                       | Microwave, Dishwasher (extended), Washing machine, Dehumidifier (to 2026-06-30) | appliance-warranties.csv, warranty_ends >= today | that the fridge is covered
+# Q4  | How long does the drum clean programme take?                     | 60 minutes             | washing-machine-manual.md, section 3               | that it is 30 minutes
+# Q5  | What should I do if the washing machine shows E3?                | Follow section 4: filter procedure | washing-machine-manual.md, error code table | that it is an E5 fault
+# Q6  | What is the guest Wi-Fi password?                               | welcome-in-the-summer  | guest-wifi.txt                                      | that it is the same as the house Wi-Fi
+# Q7  | How much did we pay in December 2025?                            | 130.62 GBP             | energy-bill-2026-03.csv, 2025-12 row               | that it was 125.06 (that is January)
+# Q8  | Is there a smart-home device I should be worried about?         | Yes: the doorbell camera and two smart plugs, because they run old firmware on the IoT network | wifi-router-notes.md, Things that have gone wrong | that they have been patched
+# Q9  | What did we do about the router password?                       | Nothing - it is still the factory default | wifi-router-notes.md, Credentials + Things that have gone wrong | that it was rotated in September
+# Q10 | How do I stop the satellite dropping the back room at 19:00?    | Suspect the power adapter, not the radio | wifi-router-notes.md, Wi-Fi problems               | that the answer is to widen the channel
+#
+# Two of these (Q2 and Q6) return credentials on purpose. A system that indexes the whole home
+# folder will answer both correctly and correctly show you that this is a design problem, not a
+# retrieval problem. Lesson 21 is about that.

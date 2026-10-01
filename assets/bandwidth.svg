@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 340" width="760" height="340" role="img" aria-labelledby="t d" font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif">
+  <title id="t">Why generation speed is memory bandwidth divided by model size</title>
+  <desc id="d">A bar chart. For a machine with about 40 gigabytes per second of usable memory bandwidth, a 2 gigabyte model predicts about 10 tokens per second and a 5 gigabyte model about 4 tokens per second. Prompt processing, shown separately, is limited by cores rather than bandwidth.</desc>
+
+  <rect x="0" y="0" width="760" height="340" fill="#fbfbfd"/>
+  <text x="24" y="30" font-size="18" font-weight="600" fill="#16181d">Every new token re-reads the whole model</text>
+  <text x="24" y="50" font-size="13" fill="#5b6270">Predicted generation speed ≈ usable memory bandwidth ÷ model size in bytes, times an efficiency factor.</text>
+
+  <line x1="90" y1="90" x2="90" y2="252" stroke="#8b8f9a" stroke-width="1.5"/>
+  <line x1="90" y1="252" x2="700" y2="252" stroke="#8b8f9a" stroke-width="1.5"/>
+
+  <text x="66" y="256" font-size="11" fill="#5b6270" text-anchor="end">0</text>
+  <line x1="90" y1="212" x2="700" y2="212" stroke="#e4e6ec"/>
+  <text x="66" y="216" font-size="11" fill="#5b6270" text-anchor="end">5</text>
+  <line x1="90" y1="172" x2="700" y2="172" stroke="#e4e6ec"/>
+  <text x="66" y="176" font-size="11" fill="#5b6270" text-anchor="end">10</text>
+  <line x1="90" y1="132" x2="700" y2="132" stroke="#e4e6ec"/>
+  <text x="66" y="136" font-size="11" fill="#5b6270" text-anchor="end">15</text>
+  <line x1="90" y1="92" x2="700" y2="92" stroke="#e4e6ec"/>
+  <text x="66" y="96" font-size="11" fill="#5b6270" text-anchor="end">20</text>
+  <text x="24" y="176" font-size="11" fill="#5b6270" transform="rotate(-90 24 176)" text-anchor="middle">tokens/s</text>
+
+  <rect x="130" y="108" width="96" height="144" rx="5" fill="#2f5fd0"/>
+  <text x="178" y="100" font-size="13" font-weight="600" fill="#1d3f8f" text-anchor="middle">~10</text>
+  <text x="178" y="272" font-size="12" fill="#16181d" text-anchor="middle">1.5B · 1.0 GB</text>
+  <text x="178" y="288" font-size="10" fill="#5b6270" text-anchor="middle">fast, good enough</text>
+
+  <rect x="280" y="148" width="96" height="104" rx="5" fill="#2f5fd0"/>
+  <text x="328" y="140" font-size="13" font-weight="600" fill="#1d3f8f" text-anchor="middle">~7</text>
+  <text x="328" y="272" font-size="12" fill="#16181d" text-anchor="middle">3B · 2.0 GB</text>
+  <text x="328" y="288" font-size="10" fill="#5b6270" text-anchor="middle">the tier A sweet spot</text>
+
+  <rect x="430" y="188" width="96" height="64" rx="5" fill="#2f5fd0"/>
+  <text x="478" y="180" font-size="13" font-weight="600" fill="#1d3f8f" text-anchor="middle">~4</text>
+  <text x="478" y="272" font-size="12" fill="#16181d" text-anchor="middle">8B · 4.9 GB</text>
+  <text x="478" y="288" font-size="10" fill="#5b6270" text-anchor="middle">tier B only</text>
+
+  <rect x="580" y="236" width="96" height="16" rx="5" fill="#c9741a"/>
+  <text x="628" y="228" font-size="13" font-weight="600" fill="#8a4a08" text-anchor="middle">~2</text>
+  <text x="628" y="272" font-size="12" fill="#16181d" text-anchor="middle">14B · 9 GB</text>
+  <text x="628" y="288" font-size="10" fill="#5b6270" text-anchor="middle">no</text>
+
+  <text x="24" y="316" font-size="11" fill="#8b8f9a">Illustrative arithmetic at 40 GB/s usable bandwidth and a 0.5 efficiency factor. Not a measurement: it ignores cores, cache and everything else running. Your numbers come from `homelab.py bench`.</text>
+</svg>

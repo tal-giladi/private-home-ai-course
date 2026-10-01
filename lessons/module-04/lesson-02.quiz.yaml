@@ -1,0 +1,59 @@
+- id: q1
+  question: >-
+    On a CPU-only box, a second request arrives while the first is still generating. With
+    `OLLAMA_NUM_PARALLEL` set to 1, what happens to the second request?
+  options:
+    - It is rejected, because the server only accepts one connection at a time.
+    - It waits for the first to finish and then runs at full speed.
+    - It runs immediately at roughly half the speed of a solo request.
+    - It runs immediately on a second copy of the model loaded from disk.
+  correct: 1
+  explanation: >-
+    A CPU has one memory bandwidth, so two concurrent requests would each get about half of it.
+    Queueing the second request means it waits briefly and then runs at full speed, which is
+    strictly better for a user than two replies that are both half as fast.
+
+- id: q2
+  question: >-
+    Voice commands are noticeably slow only while a long chat answer is still generating. The two
+    use different models and the server is set to hold one model at a time. What is happening?
+  options:
+    - The chat request is holding the model server's connection open and blocking the voice path.
+    - The model is being swapped in and out of memory, and the swap is the delay.
+    - The voice pipeline's speech-to-text service is competing with the chat model for CPU cores.
+    - The chat interface's longer context is pushing the voice request out of the model's cache.
+  correct: 1
+  explanation: >-
+    With one model slot and two different models, each alternating request forces the other to be
+    unloaded and reloaded, which costs seconds. Using one model for both, or giving the box room for
+    two, removes the swap entirely — and makes the delay predictable rather than intermittent.
+
+- id: q3
+  question: >-
+    What is the effect of setting `OLLAMA_KEEP_ALIVE: -1` on a laptop that is also used for ordinary
+    work?
+  options:
+    - Models are never unloaded, so RAM they occupy is never returned to the rest of the system.
+    - Models are unloaded immediately after each request, which is the opposite of what the name suggests.
+    - Only one model may be loaded at a time, regardless of the value.
+    - Keep-alive has no effect on memory; it only controls how long a request may run.
+  correct: 0
+  explanation: >-
+    A value of `-1` means resident indefinitely, which on a shared machine is several gigabytes held
+    for services nobody is using. The result is not a crash but everything else on the box becoming
+    slow, which is much harder to trace back to this setting later.
+
+- id: q4
+  question: >-
+    A container serving the model is killed mid-request and `docker inspect` reports exit code 137.
+    The compose file sets a memory limit and the request used a very large context. What happened?
+  options:
+    - The health check timed out and Compose shut the service down.
+    - The image was pulled with the wrong architecture and could not start properly.
+    - The container exceeded its memory limit and was killed from outside by the out-of-memory mechanism.
+    - The internal network dropped and the service lost its route to the other containers.
+  correct: 2
+  explanation: >-
+    Weights plus a large KV cache can exceed a limit that looks generous for short prompts. The kill
+    comes from the kernel rather than the application, which is why there is no error in its own
+    log; the fix is to raise the limit or lower the context length.

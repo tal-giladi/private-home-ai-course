@@ -1,0 +1,9 @@
+appliance,model,purchased,warranty_months,warranty_ends,extended_cover,notes
+Washing machine,Northline WM-2200,2025-03-14,24,2027-03-14,no,"Second machine, bought after the first one died. Transit bolts removed at install."
+Dishwasher,Northline DW-14,2024-11-02,24,2026-11-02,yes,"Extended cover to 2028-11-02, purchased 2025-01-08, policy NP-5521."
+Fridge freezer,Northline FF-310,2023-06-20,24,2025-06-20,no,"Warranty expired. Compressor noise since 2026-02; not covered."
+Kitchen oven,Crown CO-90,2024-01-15,12,2025-01-15,no,"Manufacturer only: 12 months. Warranty long expired."
+Microwave,Crown MW-22,2025-09-01,24,2027-09-01,no,"Still under warranty. Do not run it empty; that voids cover."
+Washing machine (first),Northline WM-180,2019-05-02,24,2021-05-02,no,"Beyond economic repair. Kept for parts: pump, door seal, control board."
+Dishwasher,Northline DW-9,2018-10-11,24,2020-10-11,no,"Sold in 2024."
+Dehumidifier,Torrent DH-40,2025-06-30,12,2026-06-30,no,"Warranty ends 2026-06-30. Check the tank before then."

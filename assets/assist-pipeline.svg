@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 300" width="760" height="300" role="img" aria-labelledby="t d" font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif">
+  <title id="t">The local Assist pipeline and its latency budget</title>
+  <desc id="d">Audio flows from a microphone through a Wyoming satellite, speech-to-text, and either built-in intents or a local LLM, into Home Assistant tools, then back out through text-to-speech to a speaker. Under each stage is its share of the two second budget for built-in intents.</desc>
+
+  <rect x="0" y="0" width="760" height="300" fill="#fbfbfd"/>
+  <text x="24" y="30" font-size="18" font-weight="600" fill="#16181d">What happens after you stop talking</text>
+  <text x="24" y="50" font-size="13" fill="#5b6270">Every stage is a separate service speaking the Wyoming protocol. The budget is the whole point.</text>
+
+  <rect x="24" y="72" width="712" height="108" rx="12" fill="#ffffff" stroke="#3b4252" stroke-width="1.5"/>
+
+  <rect x="40" y="92" width="118" height="46" rx="8" fill="#eef4ff" stroke="#2f5fd0"/>
+  <text x="52" y="112" font-size="12" font-weight="600" fill="#16181d">Satellite</text>
+  <text x="52" y="128" font-size="10" fill="#41507a">wake word, VAD</text>
+
+  <rect x="182" y="92" width="118" height="46" rx="8" fill="#eef4ff" stroke="#2f5fd0"/>
+  <text x="194" y="112" font-size="12" font-weight="600" fill="#16181d">Speech-to-text</text>
+  <text x="194" y="128" font-size="10" fill="#41507a">Whisper or Phrase</text>
+
+  <rect x="324" y="92" width="118" height="46" rx="8" fill="#eef4ff" stroke="#2f5fd0"/>
+  <text x="336" y="112" font-size="12" font-weight="600" fill="#16181d">Intent match</text>
+  <text x="336" y="128" font-size="10" fill="#41507a">built-in · fast path</text>
+
+  <rect x="466" y="92" width="118" height="46" rx="8" fill="#fdf1e3" stroke="#c9741a"/>
+  <text x="478" y="112" font-size="12" font-weight="600" fill="#16181d">LLM fallback</text>
+  <text x="478" y="128" font-size="10" fill="#7a5a33">only if no match</text>
+
+  <rect x="608" y="92" width="112" height="46" rx="8" fill="#f2f6f2" stroke="#2e7d4f"/>
+  <text x="620" y="112" font-size="12" font-weight="600" fill="#16181d">Home Assistant</text>
+  <text x="620" y="128" font-size="10" fill="#41564a">tools, entities</text>
+
+  <text x="156" y="119" font-size="15" fill="#8b8f9a">→</text>
+  <text x="298" y="119" font-size="15" fill="#8b8f9a">→</text>
+  <text x="440" y="119" font-size="15" fill="#8b8f9a">→</text>
+  <text x="582" y="119" font-size="15" fill="#8b8f9a">→</text>
+
+  <text x="99" y="158" font-size="10" fill="#5b6270">0.3–0.5 s</text>
+  <text x="212" y="158" font-size="10" fill="#5b6270">≤ 1 s</text>
+  <text x="360" y="158" font-size="10" fill="#5b6270">≤ 0.1 s</text>
+  <text x="500" y="158" font-size="10" fill="#5b6270">≤ 3 s</text>
+
+  <rect x="24" y="196" width="712" height="50" rx="12" fill="#ffffff" stroke="#2e7d4f" stroke-width="1.5"/>
+  <text x="44" y="218" font-size="13" font-weight="600" fill="#1d5c38">Then back out</text>
+  <text x="44" y="237" font-size="12" fill="#2b3b31">Text-to-speech streams the first words, so the answer starts arriving before it is finished. Budget: ≤ 0.5 s to first audio.</text>
+
+  <rect x="24" y="260" width="712" height="28" rx="8" fill="#eef4ff" stroke="#2f5fd0"/>
+  <text x="44" y="279" font-size="12" fill="#1d3f8f">Target: ≤ 2 s end of speech to first sound with built-in intents · ≤ 5 s when the LLM answers. Measure yours in Module 8.</text>
+</svg>

@@ -1,0 +1,58 @@
+- id: q1
+  question: >-
+    A compose file publishes the chat interface with `ports: - "8080:8080"`. What does that make
+    possible that `"127.0.0.1:8080:8080"` does not?
+  options:
+    - It makes the container start faster, because the port is opened before the image is ready.
+    - It lets containers on the same network reach the interface by its port number.
+    - It makes the interface reachable from other devices on your network, not just this one.
+    - It lets the model server on the same host proxy requests to the interface automatically.
+  correct: 2
+  explanation: >-
+    Without a bind address, Docker listens on every network interface the host has, which includes
+    the one your router can reach. Naming `127.0.0.1` restricts the listener to this computer, which
+    is the difference between a private service and a LAN-wide one.
+
+- id: q2
+  question: >-
+    You add a speech-to-text service to the compose file but it never starts, and nothing is wrong
+    in its configuration. What is the most likely cause?
+  options:
+    - The image tag is pinned to a version that has been removed from the registry.
+    - The service was not given any profiles, or its profile was not passed on the command line.
+    - The service is missing a volumes entry, so Docker refuses to schedule it.
+    - The internal network it joined has no gateway, so it cannot resolve the other services.
+  correct: 1
+  explanation: >-
+    A service in a profile is opt-in: Compose starts it only when you pass that profile, such as
+    `docker compose --profile voice up -d`. Services with no profile at all start every time. This
+    is the most common reason an expected service is simply absent.
+
+- id: q3
+  question: >-
+    What is the practical difference between `docker compose down` and `docker compose down -v`?
+  options:
+    - `down` stops containers; `down -v` also deletes named volumes and the data in them.
+    - `down` removes only the containers of the active profile; `down -v` removes every container.
+    - `down` keeps images; `down -v` also re-downloads every image on the next start.
+    - `down` is safe to run while the stack is in use; `down -v` waits for requests to finish.
+  correct: 0
+  explanation: >-
+    `down` removes containers and networks and leaves named volumes alone, which is why it is the
+    normal "stop the stack" command. Adding `-v` removes the volumes too, which deletes downloaded
+    models, chat history and the Home Assistant database with no confirmation and no recycle bin.
+
+- id: q4
+  question: >-
+    A container is killed while serving a request and the log shows no useful error. The compose
+    file sets a memory limit of `3g` and the selected model needs more. What happened?
+  options:
+    - The container was killed by the out-of-memory mechanism because it exceeded its limit.
+    - The image was corrupted during the pull, so the runtime could not start it.
+    - The internal network has no gateway, so the runtime could not allocate sockets.
+    - The health check failed repeatedly, so Compose shut the container down on purpose.
+  correct: 0
+  explanation: >-
+    Exceeding a container memory limit is enforced by the kernel, and it kills the process from the
+    outside — so the application never gets a chance to log anything. Exit code 137 is the signal to
+    look for, and the fix is a higher limit or a smaller model, not a different log level.
