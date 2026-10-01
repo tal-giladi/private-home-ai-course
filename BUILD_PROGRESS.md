@@ -25,6 +25,7 @@ Run it after every finished module, not only at the end.
 - [x] `assets/` — stack map, Assist pipeline, network zones, bandwidth diagram
 - [x] `labs/common/` — `homelab doctor`, `homelab bench`, `compose.yaml`, `.env.example`, samples
 - [x] `simulations/sizing/` — offline RAM-bill and tokens/s calculator
+- [x] `tools/` — `lint_course.py`, `fix_quiz_yaml.py`, `balance_quiz.py` (build tooling, not imported)
 - [x] Module 0 — Orientation and setup check (2 lessons + quiz)
 - [x] Module 1 — Your first local model (3 lessons + quiz)
 - [x] Module 2 — Sizing your machine (4 lessons + quiz)
@@ -38,9 +39,28 @@ Run it after every finished module, not only at the end.
 - [x] Module 10 — A local LLM as the voice assistant's brain (4 lessons + quiz)
 - [x] Module 11 — Securing the home lab (4 lessons + quiz)
 - [x] Module 12 — Running it for real (4 lessons + quiz)
-- [x] Capstone brief + rubric
+- [x] Module 13 — Capstone (1 lesson + quiz)
+- [x] `assessments/capstone-rubric.md`
 - [x] `TODO_FOR_TAL.md` — handoff
-- [x] Final QA: `check-course` 0 problems, quiz position spread, git clean
+- [x] Final QA: `npm run check-course` reports **0 problems**
+
+**Result:** 16 imported modules (13 main + Templates + Reference), 45 lessons, 59 quiz files,
+310 questions, correct-answer spread 80/76/78/76 (25.8 / 24.5 / 25.2 / 24.5 %).
+
+## Verification commands
+
+```bash
+# fast local lint: front matter, H1s, the ten sections, quizzes, links, answer spread
+py -3 tools/lint_course.py            # macOS/Linux: python3 tools/lint_course.py
+
+# the real dry-run import, after every finished module
+cd C:/Users/TalGiladi/OneDrive/repos/tals-academy
+npm run check-course -- ../course-creator/private-home-ai
+
+# repair two YAML traps this repo hit, then re-normalise the answer positions
+py -3 tools/fix_quiz_yaml.py
+py -3 tools/balance_quiz.py           # MUST be re-run after adding any lesson
+```
 
 ## Lesson inventory (global running number → stable id)
 
@@ -90,6 +110,7 @@ Run it after every finished module, not only at the end.
 | 42 | 12.2 | 12 | `lessons/module-12/lesson-02.md` |
 | 43 | 12.3 | 12 | `lessons/module-12/lesson-03.md` |
 | 44 | 12.4 | 12 | `lessons/module-12/lesson-04.md` |
+| 45 | 13.1 | 13 Capstone | `lessons/module-13/lesson-01.md` |
 
 ## Resume procedure
 
@@ -108,13 +129,20 @@ only, and hand back additions to shared files as inbox notes in `curriculum/inbo
 
 ## Decisions taken while building
 
-- **Module numbering starts at 0** (plan uses M0–M12). Folders are `module-00`…`module-12`;
+- **Module numbering starts at 0** (plan uses M0–M12). Folders are `module-00`…`module-13`;
   the sidebar line is `- **Module 0 — …**`, which the importer turns into key `m00`.
 - **One fixed `##` section set for every lesson** (see below), per instructions §4.
-- **Quiz position spread is tracked in `curriculum/quiz-balance.md`** and fixed before final QA.
+- **Quiz answer positions are normalised by `tools/balance_quiz.py`**, not by hand. It rotates the
+  options within each question so the correct answer lands on the position the rotation requires,
+  which means question text, option text and explanations are never edited. Re-run it after adding
+  any lesson — the offsets are positional.
+- **Two YAML traps are repaired by `tools/fix_quiz_yaml.py`**: a plain scalar cannot begin with a
+  backtick, and `": "` inside a sequence entry is read as a mapping. Both produced parse errors
+  that silently dropped whole quiz files before this existed.
 - **macOS steps are marked "not verified by us"** (plan §12 Q11 — only Tal's Windows laptop is tested).
+- **`tools/` is committed.** It is build tooling, not learner content, and the importer ignores it.
 
-## Lesson section template (identical in all 44 lessons)
+## Lesson section template (identical in all 45 lessons)
 
 1. `## Why it matters`
 2. `## How it works`

@@ -1,0 +1,59 @@
+- id: q1
+  question: >-
+    A capstone is submitted with a working stack, a security checklist ticked through, and no
+    restore drill. Which criterion fails, and why is it the one most often failed?
+  options:
+    - Security, because a checklist that was never verified against the running stack proves nothing.
+    - Operations, because a backup that has not been restored is a hypothesis rather than a result.
+    - Reproducibility, because a restore drill is the only way to verify a clean rebuild works.
+    - No cloud, because a restore drill requires blocking outbound traffic to complete.
+  correct: 1
+  explanation: >-
+    The operations criterion asks for a completed restore, not a backup command that was typed once.
+    It is the most commonly deferred item because it is the only one that deliberately breaks
+    something, and deferring it to last is how it ends up missing.
+
+- id: q2
+  question: >-
+    A learner verifies that nothing in their stack is reachable from the internet by trying every
+    published port from a laptop on their own home Wi-Fi. Why is that not evidence?
+  options:
+    - The test only covers TCP, while most exposed services are reached over UDP.
+    - The router blocks unknown inbound traffic by default on most modern hardware.
+    - From inside the network every published port appears reachable, so the test cannot fail.
+    - Home networks use NAT, so a test from inside already covers the external case.
+  correct: 2
+  explanation: >-
+    A device on the LAN can reach anything else on the LAN, so every published port passes and the
+    check tells you nothing about the external case. The criterion asks for a check from outside:
+    mobile data, or somebody else's network.
+
+- id: q3
+  question: >-
+    A capstone write-up justifies its chat model choice with "Qwen3 is the best small model". What
+    is wrong with that sentence?
+  options:
+    - It is too long for a one-page document and should be cut to a single line.
+    - It names a model the capstone did not actually install.
+    - Model names must be cited with a licence before they can appear in a write-up.
+    - It compares against a public ranking rather than the learner's own twenty-task eval set.
+  correct: 3
+  explanation: >-
+    A ranking measures an average over somebody else's tasks, which is exactly what the course spent
+    a module arguing against. The defensible version names the score on your own eval set, the speed
+    on your own machine, and the alternative you rejected.
+
+- id: q4
+  question: >-
+    A learner skipped Module 6 and cannot meet the "Private files" rubric criterion. What is the
+    correct way to handle it?
+  options:
+    - State that the criterion applies only when Module 6 was taken, and complete everything else.
+    - Leave the criterion blank, since a blank cannot be marked as failed.
+    - Meet it using the sample household folder supplied with the course.
+    - Index a small folder anyway, so no criterion is left blank.
+  correct: 0
+  explanation: >-
+    The rubric marks this criterion as conditional, and the course's plan makes Module 6 optional
+    precisely so the reduced path is complete. Saying so is a complete and honest capstone; indexing
+    the sample folder would meet the letter of the criterion without the substance.

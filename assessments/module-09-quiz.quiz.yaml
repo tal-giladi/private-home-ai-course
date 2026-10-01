@@ -3,11 +3,11 @@
     Your wake word fires twice in an evening with nobody speaking to it. Which change addresses the
     cause rather than the symptom?
   options:
+    - Move the microphone closer to the speaker, reducing background noise at the source.
     - Raise the detection threshold, or train a custom model using your rooms' background noise.
     - Lower the detection threshold, so it catches more genuine utterances.
     - Shorten the pre-roll buffer, so the detector has less audio to misread.
-    - Move the microphone closer to the speaker, reducing background noise at the source.
-  correct: 0
+  correct: 1
   explanation: >-
     False accepts are the failure that ends the feature, and sensitivity is the lever: raising the
     threshold trades accepts for misses. Training on your own audio including the television and the
@@ -19,11 +19,11 @@
     You train a custom wake word model on two hours of your voice in a quiet room, and it then
     ignores you in the kitchen. What went wrong?
   options:
+    - Two hours is not enough audio for the model to learn your voice at all.
     - Custom models only work within a few metres of where the training audio was recorded.
     - The training contained no background noise, so the model learned that noise means silence.
     - The service kept serving the old model, and the new one never took effect.
-    - Two hours is not enough audio for the model to learn your voice at all.
-  correct: 1
+  correct: 2
   explanation: >-
     The negatives are the training. A model that has never heard an extractor fan treats its
     spectral signature as background, so it will not fire in that room. This looks like a recogniser
@@ -33,11 +33,11 @@
   question: >-
     Every spoken command arrives as "turn on the kitch". What is the most likely cause?
   options:
+    - The speech-to-text model cannot recognise words shorter than six letters.
     - Home Assistant truncates every transcript to a fixed number of characters.
     - The wake word detector is too sensitive and fires on the first syllable of unrelated speech.
     - The satellite's pre-roll buffer is too short, so the start of the sentence is discarded.
-    - The speech-to-text model cannot recognise words shorter than six letters.
-  correct: 2
+  correct: 3
   explanation: >-
     Detection happens a little after the words were spoken, so a satellite must keep a rolling
     buffer of what came before. Too little of it and the opening syllable is gone before
@@ -48,11 +48,11 @@
     A satellite runs but never hears anything, and no wake word events are logged. What should you
     check first?
   options:
+    - Whether the microphone argument matches the platform's audio system.
     - Whether the speech-to-text model is set to the same language as the wake word service.
     - Whether the wake word service's model has finished downloading.
     - Whether Home Assistant's port is published on every interface rather than on loopback.
-    - Whether the microphone argument matches the platform's audio system.
-  correct: 3
+  correct: 0
   explanation: >-
     Asking for the wrong capture system usually produces silence rather than an error, so the
     satellite runs, hears nothing, and every symptom points at the wake word. Try the alternative
@@ -62,11 +62,11 @@
   question: >-
     Why does this course treat press-to-talk as a legitimate design rather than a fallback?
   options:
+    - It removes the speech-to-text stage, so the pipeline becomes much simpler.
     - It has a zero false-accept rate, which matters when the machine cannot spare the resources for an always-on listener.
     - It is the approach Home Assistant recommends for Raspberry Pi devices.
     - It is faster than any wake word, because detection is the slowest stage of the pipeline.
-    - It removes the speech-to-text stage, so the pipeline becomes much simpler.
-  correct: 0
+  correct: 1
   explanation: >-
     Press-to-talk trades hands-free operation for certainty. On an always-on machine that is a good
     trade, because an always-listening detector competes for CPU and RAM with everything else in the
@@ -77,11 +77,11 @@
     The pipeline works perfectly from typed input and fails from speech. Where is the fault most
     likely to be?
   options:
+    - In the text-to-speech service, which must be playing something for the wake word to respond.
     - In the conversation agent, because transcripts and typed text reach it differently.
     - In the satellite or the microphone, not in the containers.
     - In the intent matcher, because transcripts carry punctuation that typed input does not.
-    - In the text-to-speech service, which must be playing something for the wake word to respond.
-  correct: 1
+  correct: 2
   explanation: >-
     Every stage after the audio is identical for both routes, so the difference localises the fault
     to capture. The containers have not changed behaviour, and looking at them first wastes the one
@@ -91,11 +91,11 @@
   question: >-
     What does a dedicated voice satellite change about a home assistant that works well?
   options:
+    - Latency, because dedicated hardware does not share a CPU with other services.
     - Transcription accuracy, because its microphone is better matched to the speech model.
     - The model's tool-calling reliability, because the audio arrives more cleanly.
     - Availability and placement, and nothing about how well the assistant understands or decides.
-    - Latency, because dedicated hardware does not share a CPU with other services.
-  correct: 2
+  correct: 3
   explanation: >-
     A satellite buys a wake word detector that runs on a chip and a microphone in a different room.
     It does not touch the speech model on your box or the conversation agent's decisions, so if
@@ -106,11 +106,11 @@
     You are considering buying a dedicated satellite before starting Module 10. What does the
     course recommend?
   options:
+    - Finish Module 10 and measure your misfire rate first, so the purchase answers a specific problem.
     - Buy only if your machine has a discrete GPU, since the firmware needs one.
     - Buy two, one per floor, so the wake word can be heard everywhere.
     - Buy now, since it is cheaper than changing course once you have started.
-    - Finish Module 10 and measure your misfire rate first, so the purchase answers a specific problem.
-  correct: 3
+  correct: 0
   explanation: >-
     The measurement tells you whether your weak link is hearing, understanding or deciding, and only
     the first of those is improved by hardware. Buying before that means paying to solve a problem
@@ -120,11 +120,11 @@
   question: >-
     Which measurement tells you most about whether dedicated hardware would help your setup?
   options:
+    - The number of entities exposed to Assist, which determines how many rooms need a device.
     - The false-accept rate of your current wake word, measured over an hour in three rooms.
     - The number of audio samples in the custom wake word training set.
     - The generation speed of your chat model, since it sets the voice reply rate.
-    - The number of entities exposed to Assist, which determines how many rooms need a device.
-  correct: 0
+  correct: 1
   explanation: >-
     False accepts are what hardware wake word detection genuinely improves, and the per-room numbers
     tell you whether the problem is your model, your room or your microphone position. Generation

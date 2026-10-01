@@ -3,11 +3,11 @@
     A spoken question about your own documents takes nine seconds to begin answering, while a
     spoken command takes one second. What is the dominant cost?
   options:
+    - The retrieval step, because searching a vector store scales with the size of the folder.
     - The long retrieved prompt, because prompt processing is much slower than generation on a CPU.
     - The text-to-speech stage, because it must synthesise the whole answer before playing any of it.
     - The wake word detector, because recognition runs continuously and never sleeps.
-    - The retrieval step, because searching a vector store scales with the size of the folder.
-  correct: 0
+  correct: 1
   explanation: >-
     Retrieval itself is milliseconds, and Piper streams. The wait is thousands of prompt tokens going
     through a model at a compute-bound rate, which is the slowest thing in the pipeline on this
@@ -18,11 +18,11 @@
     Knowledge questions by voice are too slow on your machine. What is the cheapest change to try
     first?
   options:
+    - Disabling text-to-speech, so the answer is typed instead of spoken.
     - Replacing the conversation model with a larger one for better answer quality.
     - Lowering `RAG_TOP_K`, which shortens the prompt and therefore the wait before the first word.
     - Raising the speech-to-text model quality, so the question is transcribed more accurately.
-    - Disabling text-to-speech, so the answer is typed instead of spoken.
-  correct: 1
+  correct: 2
   explanation: >-
     `RAG_TOP_K` is free and it attacks the actual quantity: the number of tokens that must be
     processed before generation starts. A larger model costs RAM and time and does not shorten the
@@ -34,11 +34,11 @@
     You skipped Module 6. Which capstone criterion does that cost you, and what does it not cost
     you?
   options:
+    - The voice pipeline criterion, because retrieval is part of the spoken path.
     - Nothing, because the course reuses the knowledge base for the voice labs.
     - The security criterion, because a retrieval index widens the attack surface.
     - Only the "Private files" criterion; every other criterion and lesson remains completable.
-    - The voice pipeline criterion, because retrieval is part of the spoken path.
-  correct: 2
+  correct: 3
   explanation: >-
     Module 6 is optional and self-contained. Skipping it removes lesson 10.4 and one capstone
     criterion, and nothing in Modules 7 to 12 depends on it. The course's plan makes this trade
@@ -49,11 +49,11 @@
     You want to compare the cost of voice retrieval against ordinary voice commands. What
     measurement makes the comparison meaningful?
   options:
+    - Time both, from the end of speech to the first sound, and report them separately.
     - Time only the knowledge question, since the command figure is already known from lesson 08.
     - Time both using the typed interface, because it removes microphone variability.
     - Average the two timings together, so the result is a single representative figure.
-    - Time both, from the end of speech to the first sound, and report them separately.
-  correct: 3
+  correct: 0
   explanation: >-
     The control case is the point: "turn on the kitchen light" is what a fast voice command costs on
     your machine, and the gap between it and the knowledge question is the price of the prompt.

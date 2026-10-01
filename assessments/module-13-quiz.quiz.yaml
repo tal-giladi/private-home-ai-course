@@ -1,0 +1,134 @@
+- id: q1
+  question: >-
+    A capstone has a working stack, a completed backup, and a ticked security checklist, but no
+    restore drill. Which criterion fails, and why is it the one most often failed?
+  options:
+    - No cloud, because a restore drill requires outbound traffic to be blocked first.
+    - Security, because a checklist never verified against the running stack proves nothing.
+    - Operations, because a backup that has not been restored is a hypothesis rather than a result.
+    - Reproducibility, because a restore drill is the only way to verify a clean rebuild.
+  correct: 2
+  explanation: >-
+    The operations criterion asks for a completed restore rather than a backup command that was
+    typed once. It is the item most often deferred, because it is the only one that deliberately
+    breaks something, and deferring it to last is how it ends up missing.
+
+- id: q2
+  question: >-
+    A learner checks that no published port is reachable from the internet by trying each one from
+    a laptop on their own home Wi-Fi. Why is that not evidence?
+  options:
+    - Home networks use NAT, so a test from inside already covers the external case.
+    - The test only covers TCP, while exposed services are usually reached over UDP.
+    - The router blocks unknown inbound traffic by default on most modern hardware.
+    - From inside the network every published port appears reachable, so the test cannot fail.
+  correct: 3
+  explanation: >-
+    A device on the LAN can reach anything else on the LAN, so every port passes and nothing is
+    learned about the external case. The criterion asks for a check from outside — mobile data, or
+    somebody else's network — and for the method to be written down alongside the result.
+
+- id: q3
+  question: >-
+    A write-up justifies its chat model with "Qwen3 is the best small model available". What is
+    wrong with that sentence?
+  options:
+    - It compares against a public ranking rather than the writer's own twenty-task eval set.
+    - It is too long for a one-page document and should be trimmed to a single line.
+    - Model names must be cited with a licence before they may appear in a write-up.
+    - It fails to mention the runner-up model, which the rubric requires.
+  correct: 0
+  explanation: >-
+    A ranking measures an average over somebody else's tasks, which is what the course spent a
+    module arguing against. The defensible version names the score on your own eval set, the speed on
+    your own machine, and the alternative you rejected.
+
+- id: q4
+  question: >-
+    A learner skipped Module 6 and cannot meet the "Private files" rubric criterion. What is the
+    correct way to handle it?
+  options:
+    - Index a small folder anyway, so no criterion is left without an answer.
+    - State that the criterion applies only when Module 6 was taken, and complete everything else.
+    - Leave the criterion blank, since a blank cannot be recorded as a failure.
+    - Meet it by indexing the sample household folder supplied with the course.
+  correct: 1
+  explanation: >-
+    The rubric marks the criterion as conditional and the course plan makes Module 6 optional so
+    that the reduced path is complete. Saying so is an honest capstone; indexing the sample folder
+    would satisfy the letter of the criterion without any of the substance.
+
+- id: q5
+  question: >-
+    A learner wants to raise their model choice from a 3B to an 8B because a public benchmark
+    ranks it higher. Which measurement should decide it?
+  options:
+    - The benchmark scores for both models, since the benchmark is the reference everyone uses.
+    - The size of the RAM bill with both models loaded at once, on their own machine.
+    - The score on their own twenty-task eval set, plus tokens per second on their own hardware.
+    - The number of parameters, since larger models are more capable in proportion.
+  correct: 2
+  explanation: >-
+    The decision is quality on your tasks at a speed your machine delivers, and both halves are
+    yours to measure. An 8B that scores better and runs at three tokens per second fails the voice
+    criterion, and the RAM bill often says the same thing more cheaply.
+
+- id: q6
+  question: >-
+    A capstone reports a misfire rate of 6.7% across thirty commands, with four wrong actions.
+    Which criterion is not met, and what is the first change to make?
+  options:
+    - Guardrails, because the wrong actions were all on entities without confirmation steps.
+    - Model choice, because no model should misfire more than twice in thirty commands.
+    - Reproducibility, because a misfire rate above 5% suggests the stack was rebuilt mid-test.
+    - Voice pipeline, because a wrong-action rate above about 5% is the bar. Expose fewer entities first.
+  correct: 3
+  explanation: >-
+    The voice criterion asks for a misfire rate on the thirty-command set, and wrong actions are the
+    part that matters. The first change is almost always a narrower exposure list rather than a
+    different model, because every exposed entity is both a tool and a chance to choose wrongly.
+
+- id: q7
+  question: >-
+    A learner writes that they verified no service is reachable from the internet, and provides no
+    record of how. Why is the claim not accepted by the rubric?
+  options:
+    - The rubric asks for the method as well as the result, because the two are separable claims.
+    - External reachability can only be verified by a paid third-party service.
+    - The claim is accepted, provided every published port is bound to 127.0.0.1.
+    - The rubric requires screenshots of the router configuration as well as a method.
+  correct: 0
+  explanation: >-
+    "Nothing is exposed" and "here is how I checked" are different claims, and only the second one
+    tells a reviewer whether the first was actually tested. Binding to loopback is one good design,
+    but a reader who cannot see the verification has no way to tell it from an assumption.
+
+- id: q8
+  question: >-
+    A capstone stack cannot be rebuilt from a clean directory using only the repository and the
+    example environment file. Which criterion fails, and what does the fix usually turn out to be?
+  options:
+    - Operations, because a non-reproducible stack cannot be backed up reliably.
+    - Reproducibility. The fix is usually a hand-configured step that was never written down.
+    - Model choice, because a rebuilt stack will not remember which model was chosen.
+    - Security, because manual steps almost always involve opening something to the network.
+  correct: 1
+  explanation: >-
+    Every manual step is the finding. When the rebuild fails, the missing step is something done
+    once by hand in a terminal, and converting it into a documented command is exactly what this
+    criterion is for — it is the step that saves the next person, including yourself, six months on.
+
+- id: q9
+  question: >-
+    Which statement in a capstone write-up is the strongest evidence that a design choice was made
+    deliberately rather than copied?
+  options:
+    - A note that the defaults from the course were followed, which shows consistency.
+    - A table of every image tag and model in the stack, for completeness.
+    - A sentence naming the alternative that was rejected and the measurement that rejected it.
+    - A description of the build order, showing the work was methodical.
+  correct: 2
+  explanation: >-
+    A decision is only defensible once you can say what else you could have done and why you did
+    not, and the measurement is what does that work. A configuration table records state; it does
+    not record judgement, and the rubric is about judgement throughout.

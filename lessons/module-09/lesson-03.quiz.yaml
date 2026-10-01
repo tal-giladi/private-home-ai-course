@@ -2,11 +2,11 @@
   question: >-
     What does a dedicated voice satellite change about a home assistant that already works?
   options:
-    - Transcription accuracy, because its microphone matches the speech model better.
     - Availability and placement, and nothing about how well the assistant decides.
     - The model's tool-calling reliability, because the audio arrives more cleanly.
     - Latency, because dedicated hardware does not share a CPU with other services.
-  correct: 1
+    - Transcription accuracy, because its microphone matches the speech model better.
+  correct: 0
   explanation: >-
     A satellite buys a wake word detector that runs on a chip and a microphone in a different room.
     The speech model and the conversation agent still live on your box, and neither is improved by a
@@ -17,11 +17,11 @@
     You train a custom wake word model on two hours of your voice in a quiet room, and it then
     ignores you in the kitchen. What went wrong?
   options:
-    - Two hours is not enough audio for the model to learn your voice at all.
     - Custom models only work within a few metres of where the audio was recorded.
     - The training included no background noise, so the model learned that noise means silence.
     - The service kept serving the previous model and the new one never took effect.
-  correct: 2
+    - Two hours is not enough audio for the model to learn your voice at all.
+  correct: 1
   explanation: >-
     The negatives are the training. A model that has never heard an extractor fan treats its
     spectral signature as background, so it will not fire in that room. It reads as a recogniser
@@ -31,11 +31,11 @@
   question: >-
     Which measurement would tell you most whether dedicated hardware would improve your setup?
   options:
-    - The false-accept rate of your wake word, measured over an hour in three rooms.
-    - The number of audio samples used in your wake word training set.
     - The generation speed of your chat model, since it sets the rate of spoken replies.
     - The count of entities exposed to Assist, which determines how many rooms need a device.
-  correct: 0
+    - The false-accept rate of your wake word, measured over an hour in three rooms.
+    - The number of audio samples used in your wake word training set.
+  correct: 2
   explanation: >-
     False accepts are what hardware wake word detection genuinely improves, and measuring per room
     tells you whether the problem is your model, your room or the microphone's position. Generation
@@ -46,11 +46,11 @@
     Why does this course never make dedicated voice hardware a requirement for any lab or capstone
     criterion?
   options:
-    - Dedicated satellites are not supported by Home Assistant's Wyoming protocol.
-    - Every voice lab is completable by typed input or WAV files, so requiring hardware would exclude people.
     - Hardware satellites cannot reach a model server running inside a container.
     - The course could not verify pricing or availability for any consumer device.
-  correct: 1
+    - Dedicated satellites are not supported by Home Assistant's Wyoming protocol.
+    - Every voice lab is completable by typed input or WAV files, so requiring hardware would exclude people.
+  correct: 3
   explanation: >-
     Every voice lab works from typed input or recorded files, and the capstone accepts a typed
     pipeline plus a text-to-speech output check. Making a purchase necessary would exclude anyone

@@ -2,11 +2,11 @@
   question: >-
     Why does the course put built-in intents ahead of the language model in a voice pipeline?
   options:
+    - A model cannot be configured to run after an intent matcher has already run.
     - Intents are the only path that works when the speech model is still loading.
     - Intents produce shorter replies, so text-to-speech has less to synthesise.
     - Intents fail by doing nothing, while a model can fail by acting, and that asymmetry matters.
-    - A model cannot be configured to run after an intent matcher has already run.
-  correct: 2
+  correct: 3
   explanation: >-
     An intent that cannot match simply does nothing, which is the right failure mode for a device in
     your home. A model that cannot be sure will still emit a plausible tool call, so the fast
@@ -17,11 +17,11 @@
     In the hybrid pipeline, "turn off everything" matches a built-in intent, but the intent does
     not include the heating. What is the correct behaviour?
   options:
+    - Fall through to the model, so the full meaning of the sentence is handled.
     - Refuse, because a sentence that matches no intent completely cannot be handled safely.
     - Run the intent and then run the model, so both meanings are applied.
     - Run the intent, because a partial match on a control command is still better than nothing.
-    - Fall through to the model, so the full meaning of the sentence is handled.
-  correct: 3
+  correct: 0
   explanation: >-
     A partial match is the dangerous case, because the system acts on less than you meant. Falling
     through lets the model handle the rest; refusing is worse than acting when the sentence is
@@ -32,11 +32,11 @@
     Your hybrid pipeline gives the model the same wrong-action count as the model alone. What does
     that suggest?
   options:
+    - The model is too small for the tool set and should be replaced.
     - The intents are not being matched first, so the model handles sentences the intents should have.
     - The speech-to-text stage is producing wrong sentences that no intent can match.
     - The exposure list is too short for the intents to find the right entities.
-    - The model is too small for the tool set and should be replaced.
-  correct: 0
+  correct: 1
   explanation: >-
     The hybrid's whole value is that the fast path handles what it can, so no improvement on the
     model-only figure means it is not running first. Check the pipeline's stage order before touching
@@ -47,11 +47,11 @@
     You measured the intent path and the model path and want to report the result. What should you
     submit?
   options:
+    - Only the fastest path, since the other one does not meet the latency target.
     - One average across both paths, because a single figure is easier to compare.
     - Both paths separately, including their wrong-action counts, because they fail differently.
     - Only the intent path, since it is the one the household will use most.
-    - Only the fastest path, since the other one does not meet the latency target.
-  correct: 1
+  correct: 2
   explanation: >-
     These are two systems with different failure modes, and averaging them describes neither. The
     capstone asks for both, with wrong-action counts, because the difference between doing nothing
