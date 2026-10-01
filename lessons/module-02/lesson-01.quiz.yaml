@@ -1,0 +1,63 @@
+- id: q1
+  question: >-
+    A laptop with a 4-core processor generates a 3B model at about 5 tokens per second. You know
+    nothing else about the machine. What does that figure mostly tell you?
+  options:
+    - That the model file is too large, since file size limits generation speed directly.
+    - That the runtime is using too many threads, which serialises the memory requests.
+    - That the processor is too slow, because a 4-core part cannot generate faster than that.
+    - That the memory subsystem is delivering relatively few bytes per second to the processor.
+  correct: 3
+  explanation: >-
+    Generation re-reads the whole weight file for every token, so speed is bounded by how fast
+    memory delivers bytes rather than by arithmetic capacity. The same Llama 3.2 3B model manages
+    4.6–4.9 tok/s on a Raspberry Pi 5 and 9.1 on an Intel N150 — both four cores, different
+    memory bandwidth.
+
+- id: q2
+  question: >-
+    A desktop has one 16 GB DDR5-6000 module in slot A2 and an empty B2. Generation with a 4B model
+    is about half what the same model achieves on an identical machine with two modules. Why?
+  options:
+    - With one module only one 64-bit memory channel is populated, halving bytes per second.
+    - The single stick is dual-rank, so the controller serves it at half the advertised clock.
+    - The second slot is reserved for the graphics card, so one module means no memory at all.
+    - The operating system reserves half the memory for paging, so the model only gets one channel.
+  correct: 0
+  explanation: >-
+    A 64-bit channel moves a fixed number of bytes per transfer, and a second channel in the
+    paired slot roughly doubles what the processor can pull. Generation is bandwidth-bound, so the
+    speed follows — with no warning from the operating system, and with `doctor` reporting
+    `memory channels: unknown` on Windows and macOS.
+
+- id: q3
+  question: >-
+    A machine generates a 4B model at 12 tok/s and then spends 40 seconds on a question before the
+    first word of the answer appears. The second number is not a fault. What is it?
+  options:
+    - The context window was smaller than the question, so the answer had to be regenerated.
+    - The prompt was processed at a few dozen tokens per second, which is a different limit.
+    - The quantisation was too coarse, so the runtime had to re-read the file for every token.
+    - The model was unloaded between requests, because keep-alive was set to five minutes.
+  correct: 1
+  explanation: >-
+    Prompt processing runs the weights over a batch of tokens at once, so it is compute-bound and
+    scales with cores; cited rates run from about 31 to over 100 tok/s on desktop hardware. A few
+    thousand prompt tokens therefore cost tens of seconds before generation starts, and a
+    retrieval-augmented question pays that on every single query.
+
+- id: q4
+  question: >-
+    Your thread sweep shows generation at 12.2 tok/s with 4 threads, 16.7 with 8, and 15.3 with 16.
+    What is the correct conclusion to draw?
+  options:
+    - The model was thermally throttling, which always happens above eight threads.
+    - The efficiency factor doubles between four and eight threads on every modern processor.
+    - Generation is bandwidth-bound, so the memory bus saturates and extra threads only add overhead.
+    - The runtime has a bug that reuses threads, so results above four threads are invalid.
+  correct: 2
+  explanation: >-
+    Once the memory controller is saturated, more threads queue for the same bus, so generation
+    flattens and can dip slightly — which is exactly the curve in llama-bench's own documented
+    thread sweep. Prompt processing on that same sweep keeps climbing, because it is
+    compute-bound, so the extra cores are real but they are not helping generation.

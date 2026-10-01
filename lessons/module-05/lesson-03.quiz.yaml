@@ -18,11 +18,11 @@
     Two models pass 17 of your 20 eval tasks. One is Apache-2.0, the other uses a community
     licence with an acceptable-use policy. Which should you install, and why?
   options:
-    - The community one, because its extra terms usually restrict commercial use, which is irrelevant at home.
     - The Apache-2.0 one, because when scores are close the clearer licence is worth more than the difference.
     - Whichever downloaded faster, since licences do not affect a private installation.
     - The community one, because community licences generally permit redistribution, which the other may not.
-  correct: 1
+    - The community one, because its extra terms usually restrict commercial use, which is irrelevant at home.
+  correct: 0
   explanation: >-
     For a home stack both are usable, so the tie-break should go to the licence that keeps your
     options open: Apache-2.0 has no conditions at all. Licence choice is only interesting when it
@@ -62,11 +62,11 @@
   question: >-
     Why is a model indexer the most exposed part of a home stack, even though it only reads files?
   options:
-    - It needs the most RAM, so an attacker targets it to exhaust the machine.
-    - It parses every document you give it, so a malicious file reaches a parser you chose to trust.
     - It is the only service with an outbound network route, so it can be used as a relay.
     - It holds the model weights, so replacing it lets an attacker substitute the chat model.
-  correct: 1
+    - It needs the most RAM, so an attacker targets it to exhaust the machine.
+    - It parses every document you give it, so a malicious file reaches a parser you chose to trust.
+  correct: 3
   explanation: >-
     Indexing is the component that reads the widest variety of untrusted input — PDFs, spreadsheets,
     images — through a stack of document parsers. That breadth, not privilege or bandwidth, is what

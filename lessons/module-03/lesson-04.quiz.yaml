@@ -3,11 +3,11 @@
     A model server is set with `OLLAMA_KEEP_ALIVE: -1` on a 16 GB machine. Two models are used
     once each and then nothing happens for a day. What is the state of the box?
   options:
-    - Both models are still in RAM, because -1 means never unload.
     - Both models were unloaded, because a negative value is treated as an invalid setting.
     - The smaller model stayed and the larger one unloaded, because only one fits.
     - The models unloaded after the default timeout, since -1 applies only to the container itself.
-  correct: 0
+    - Both models are still in RAM, because -1 means never unload.
+  correct: 3
   explanation: >-
     A keep-alive of `-1` means the model stays resident indefinitely. On a 16 GB machine that is
     several gigabytes held for services nobody is using, and the symptom is not a crash but
@@ -33,7 +33,7 @@
     database all survive. Why?
   options:
     - Compose copies container state into a backup volume before shutting down.
-    - `down` only removes containers and networks, and named volumes are deliberately left in place.
+    - "`down` only removes containers and networks, and named volumes are deliberately left in place."
     - The images themselves carry the data, so recreating containers restores it.
     - The data is written to the host filesystem rather than to volumes, so it is untouched.
   correct: 1
@@ -47,11 +47,11 @@
     Two requests arrive at the same time on a CPU-only box. The second reply is noticeably slower
     than it would have been alone. What is the most direct cause?
   options:
+    - Context length is capped, so the second request was truncated to fit the space the first left.
     - The first request filled the model's KV cache, so the second had to rebuild it from scratch.
     - The two requests share one memory bandwidth, so each gets roughly half of it.
     - The model server serialises writes to the model volume, so the second request waits on disk.
-    - Context length is capped, so the second request was truncated to fit the space the first left.
-  correct: 1
+  correct: 2
   explanation: >-
     Generation is bandwidth-bound, and two concurrent requests divide the same bytes per second
     rather than getting more of them. This is why the course's stack sets

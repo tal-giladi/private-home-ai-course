@@ -3,11 +3,11 @@
     A chat interface has automatic conversation titling enabled. Each time you start a new chat,
     something is sent to a third party. What exactly?
   options:
-    - Nothing; title generation runs on the local model, because every model call is local.
-    - The first message of the conversation, so the model can propose a short title for it.
     - Only a hash of the conversation, so the provider cannot read what you wrote.
     - The whole conversation, so the model has enough context to summarise it accurately.
-  correct: 1
+    - Nothing; title generation runs on the local model, because every model call is local.
+    - The first message of the conversation, so the model can propose a short title for it.
+  correct: 3
   explanation: >-
     Automatic titling is a model call made on your behalf for a cosmetic reason, and if the
     interface is configured with a hosted provider, your first message goes to that provider. It is
@@ -18,11 +18,11 @@
     Which of these is the most reliable way to check that a local chat interface is not talking to
     anything but your own machine?
   options:
-    - Reading the project's documentation and confirming the features are described as local.
     - Watching the browser's network tab and confirming every request goes to your own address.
     - Checking that the container's environment file contains no API keys.
     - Disabling the model server and confirming the interface stops working.
-  correct: 1
+    - Reading the project's documentation and confirming the features are described as local.
+  correct: 0
   explanation: >-
     Documentation describes intentions and the absence of a key says nothing about a call made on
     your behalf. The network tab shows what actually happened, from the browser's side, which is the
@@ -33,11 +33,11 @@
     Sign-up is left open on a chat interface published to your LAN address. What risk does that
     create specifically?
   options:
+    - The chat interface will fall back to hosting its own model in the browser.
     - Any device on the network can create an account and use the interface, which proxies to your model server.
     - The interface will run out of accounts and stop accepting model calls.
     - The model server's memory limit will be raised to accommodate the extra accounts.
-    - The chat interface will fall back to hosting its own model in the browser.
-  correct: 0
+  correct: 1
   explanation: >-
     Authentication with open registration is not much of a control: anyone on the network,
     including a device on guest Wi-Fi, can create an account and use your machine's compute. The

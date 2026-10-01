@@ -1,0 +1,64 @@
+- id: q1
+  question: >-
+    `python homelab.py bench` reports 21 tok/s generation and a prompt rate of 38 tok/s for a short
+    question. Which of these two numbers should decide whether retrieval over your own files is
+    usable on this machine?
+  options:
+    - Both equally, because a retrieval question needs many answer tokens and a long prompt.
+    - The prompt rate, because a retrieval question carries thousands of prompt tokens.
+    - Neither, because retrieval speed is set by the vector store rather than by the model.
+    - Generation, because the answer is streamed token by token once the prompt is processed.
+  correct: 1
+  explanation: >-
+    A retrieval-augmented question is mostly prompt: a few thousand tokens of retrieved text are
+    processed before a single word appears, at 18 to 65 seconds on the prompt rates cited in this
+    course, and then only a short answer is generated. That asymmetry is why prompt throughput is
+    the number that decides whether the feature is usable, and generation is the number that
+    decides whether the conversation is pleasant.
+
+- id: q2
+  question: >-
+    You predicted 14 tok/s for a 3B model on your laptop and measured 5.4 tok/s. What is the most
+    useful next step?
+  options:
+    - Find the cause, because a gap this large usually means single-channel memory or swapping.
+    - Divide the prediction by the ratio between the two models, so the number becomes usable.
+    - Raise the efficiency factor to match the measurement, so the next prediction is accurate.
+    - Re-measure, because a gap of this size is almost always a mistake in the measurement.
+  correct: 0
+  explanation: >-
+    The prediction and the measurement together are the result; the gap between them names a
+    specific cause, and the candidates are few. Adjusting the factor to match is legitimate as
+    calibration, but doing it before you know why the gap exists means you have calibrated your
+    error rather than your machine.
+
+- id: q3
+  question: >-
+    A thread sweep shows generation at 12.2 tok/s with 4 threads, 16.7 with 8, and 15.3 with 16.
+    What does that tell you about where to stop raising `num_thread`?
+  options:
+    - Nowhere, because every additional thread adds a measurable amount of generation speed.
+    - At one, because generation is bandwidth-bound from the first thread onwards.
+    - Somewhere around eight, because generation flattens once the memory bus is saturated.
+    - At sixteen, because the curve always falls by exactly that point on a saturated bus.
+  correct: 3
+  explanation: >-
+    Generation doubles from one thread to four, gains a little more to eight, and then goes flat or
+    slightly down — the published llama-bench sweep has the same shape. Extra threads queue for a
+    memory bus that is already the constraint, so the honest value is your physical core count and
+    no more.
+
+- id: q4
+  question: >-
+    You run `llama-bench -hf Qwen/Qwen3-4B-GGUF:Q4_K_M -p 512 -n 0` and get a single row labelled
+    `pp 512`. What have you measured, and what have you skipped?
+  options:
+    - Prompt processing at 512 tokens, with generation excluded because no tokens are generated.
+    - Generation only, because a prompt count that large makes the tool infer the test instead.
+    - Nothing useful, because a valid figure needs both tests to appear in the same run.
+    - Both tests at once, because the tool splits the work between the two halves of the run.
+  correct: 0
+  explanation: >-
+    `-p 0` measures generation alone and `-n 0` measures prompt processing alone, which is how you
+    separate the two limits instead of blending them. The row label says which test produced it:
+    `pp 512` is 512 prompt tokens processed per second, with nothing generated in the same run.

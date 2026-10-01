@@ -1,0 +1,141 @@
+- id: q1
+  question: >-
+    A friend asks what "private home AI" actually means, and you want an answer he can check rather
+    than believe. What is the strongest statement you can make on day one?
+  options:
+    - Your files stay private, because a local model never reads anything you did not send it.
+    - Nothing you type ever leaves the machine, because no cloud service is involved anywhere.
+    - The model runs on your machine, and proving that data stays there is a test you have not run.
+    - The runtime is local by design, so its vendor's statement about your data is a guarantee.
+  correct: 2
+  explanation: >-
+    The two useful claims are separate: where the inference runs, and where the bytes go. The first
+    you can demonstrate in ten minutes by switching the Wi-Fi off and asking a question; the second
+    needs the firewall-level proof in Module 12, and a vendor's statement about your data is
+    something to check rather than inherit.
+
+- id: q2
+  question: >-
+    `python homelab.py doctor` reports 8 GB of RAM and four cores. Which combination can you expect
+    to work for the whole course?
+  options:
+    - A 4B chat model with a 32 000-token context, which is the default for this class of machine.
+    - Nothing works, because the course is written for 16 GB machines and above.
+    - A 3B chat model, the voice pipeline and a vector store, all resident at the same time.
+    - A 1B chat model, typed Assist commands, and voice stages started one at a time.
+  correct: 3
+  explanation: >-
+    Tier C is the 8 GB band, and the recommendation `doctor` prints for it is a 1B model such as
+    `llama3.2:1b`, with Speech-to-Phrase or Whisper tiny for voice and the rule that the vector
+    store and a chat model do not run at once. The course is written so a tier C machine finishes
+    it, with smaller models and the reduced-path notes in each lesson.
+
+- id: q3
+  question: >-
+    Which of these is a job a CPU-only private home AI stack does well on an ordinary home machine?
+  options:
+    - Running a 1B voice assistant that answers a spoken command in about a second.
+    - Fine-tuning a 7B model on your own documents so that it memorises them.
+    - Answering a question in under a second about a document you indexed yourself.
+    - Running a 70B chat model interactively on a laptop with no graphics card.
+  correct: 0
+  explanation: >-
+    A 1B model answering at double-digit tokens per second on a Raspberry Pi 5 is well within a
+    CPU's reach, and Home Assistant's own guidance treats an Intel N100-class CPU as the bare
+    minimum for local speech-to-text. Fine-tuning, a 70B chat model and a sub-second answer over a
+    full document index are each bounded by something else — training compute, RAM, or prompt
+    processing — and none of them is what a home machine is for.
+
+- id: q4
+  question: >-
+    A port line in `doctor` reads `reachable from your router; this is the one to fix`. What has
+    happened, and what is the immediate action?
+  options:
+    - The service is running behind the firewall, and the firewall is the thing to reconfigure.
+    - The service is bound to every interface, and you put the bind address back to loopback.
+    - The service is bound to 127.0.0.1, and the script is reporting a false positive.
+    - The router is forwarding that port to the internet, and you should disable the forwarding.
+  correct: 1
+  explanation: >-
+    `0.0.0.0` means listen on every interface, including the one your router can reach, so the
+    service is on the network rather than on your computer — and the model server's API has no
+    authentication at all. Setting the bind address back to `127.0.0.1` and re-running the report
+    turns the line green; Module 11 is where this is designed properly for every service.
+
+- id: q5
+  question: >-
+    The tier is B, with 32 GB of RAM and 16 logical cores, and `doctor` recommends `qwen3:4b` as
+    the first model. What is the reasoning behind that recommendation?
+  options:
+    - The 4B model is the only one published under a permissive licence, so it is the safe default.
+    - 16 logical cores means 16 threads of generation, so a 1B model would be wasted on them.
+    - 32 GB is enough for a 7–8B model, but you should measure your bandwidth before going bigger.
+    - 32 GB is enough for two 8B models loaded at once, which is what a tier B machine is for.
+  correct: 2
+  explanation: >-
+    Tier B is the 32 GB band, and the tool's own reason says exactly this: start at 4B, and try
+    7–8B if your bandwidth supports it. Size decides how much fits; bandwidth decides how fast it
+    runs, and only Module 2 tells you which of the two is your limit. The licence question is a
+    separate matter, covered in Module 5.
+
+- id: q6
+  question: >-
+    You are choosing between the core path and the voice path. What does each one actually add?
+  options:
+    - Core is a reading course; voice is the only path with hands-on labs in it.
+    - Core builds the services; voice adds hardware you must buy, such as a satellite.
+    - Core is for Windows and Linux; voice is the macOS version of the same material.
+    - Core is modules 0 to 6; voice adds modules 7 to 10, a microphone and eight to ten more hours.
+  correct: 3
+  explanation: >-
+    The core path is modules 0 to 6, about ten to twelve hours, and it ends with local chat, a
+    served stack and model selection. The voice path adds modules 7 to 10 — Home Assistant, speech
+    in and out, wake words and a local model as the assistant's brain — and needs a microphone,
+    which can be a laptop's own. Every lab in it also works from a WAV file.
+
+- id: q7
+  question: >-
+    Module 6 is the optional module. What does skipping it cost?
+  options:
+    - The capstone's private-files criterion, and the one voice lesson that depends on it.
+    - Nothing, because every later module explains its own prerequisites from the beginning.
+    - The whole voice path, because retrieval is what the voice assistant searches for.
+    - The core path's capstone, because the stack cannot be assessed without an index.
+  correct: 0
+  explanation: >-
+    Skipping M6 removes lesson 10.4 and one capstone criterion; everything else stands without it,
+    and the default voice design — fixed intents first, the model as a fallback — is the safer
+    design anyway. The rest of the course links out to Tal's RAG course for depth rather than
+    duplicating it.
+
+- id: q8
+  question: >-
+    Your machine reports `available ram 2.1 GB free right now` on a 16 GB laptop, and `doctor` still
+    calls it tier A. What is the right reading?
+  options:
+    - The tier is deliberately lowered, and the report shows the pre-adjustment value as well.
+    - The tier is computed from total RAM and physical cores, so a busy machine still reads tier A.
+    - The tier is wrong, because the calculation should use available memory rather than total.
+    - The script rounds down, so 2.1 GB of free memory is reported as a lower total by mistake.
+  correct: 1
+  explanation: >-
+    The tier describes what the hardware has, so it is computed from total RAM and the physical
+    core count and nothing that changes minute to minute. That is also the trap: a machine can be
+    tier A on paper and out of memory in practice, which is why the RAM bill counts everything
+    already running on the box before a model is chosen.
+
+- id: q9
+  question: >-
+    A published benchmark says a 3B model manages 13.1 tokens per second. You are choosing a model
+    for a 16 GB laptop. What is the correct use of that number?
+  options:
+    - Ignore it, because only llama-bench results are trustworthy and the rest are marketing.
+    - Take it as the expected speed, because the model is the same file on every machine.
+    - Read it as a warning that your machine may be far slower, since it was a Ryzen mainboard.
+    - Multiply it by the ratio of the two machines' core counts to get your own expected speed.
+  correct: 2
+  explanation: >-
+    The value is real and it is on a Framework Ryzen mainboard, and the same model manages 4.6–4.9
+    tok/s on a Raspberry Pi 5 — a factor of almost three from memory alone. It is a data point for
+    calibrating your intuition, named with its machine for exactly this reason, and never a
+    prediction for hardware you have not measured.

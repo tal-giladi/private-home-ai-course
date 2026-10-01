@@ -1,0 +1,64 @@
+- id: q1
+  question: >-
+    A colleague says a 3B model is the best you can run on a 16 GB laptop, and proposes pulling it
+    at Q8_0 instead of Q4_K_M "so the quality is right". What is the honest trade-off?
+  options:
+    - Q8_0 only affects models served by llama.cpp, and Ollama always loads Q4_K_M.
+    - Q8_0 costs about 1.5 GB instead of 1.6 GB, so there is nothing to weigh against quality.
+    - Q8_0 nearly doubles the file size, and generation re-reads the weights for every token.
+    - Q8_0 is a context-length setting, so it changes memory use but not generation speed.
+  correct: 0
+  explanation: >-
+    Generation is bounded by how fast memory delivers the weights, and Q8_0 stores roughly twice
+    the bytes of Q4_K_M, so the time per token rises accordingly on the same machine. You are
+    buying a quality difference that most people cannot hear with a speed and memory difference
+    everybody can feel, which is why Q4_K_M is the home default.
+
+- id: q2
+  question: >-
+    A model replies to your questions with more questions, repeated sentences, and a plausible
+    transcript of a conversation that never happened. Nothing is wrong with the runtime. What is
+    the most likely cause?
+  options:
+    - The model is answering from a cached cloud response left by an earlier request.
+    - The model is a base checkpoint, so it continues your text instead of answering it.
+    - The context window is larger than the machine's memory, so the answer is being truncated.
+    - The quantisation is too aggressive, which is a known way to make a model ramble.
+  correct: 1
+  explanation: >-
+    A base model is a next-token predictor with no instruction tuning, so from its point of view a
+    question is just text to continue — a transcript is a perfectly good continuation. `ollama show`
+    tells you whether a chat template is declared, and the `instruct` or `it` marker in a tag is
+    the hint that the build you want exists.
+
+- id: q3
+  question: >-
+    Someone sends you a folder with `pytorch_model.bin` and a `convert_to_gguf.py`. What is the
+    correct response, and why?
+  options:
+    - Run it, because GGUF can only be produced by converting a PyTorch checkpoint first.
+    - Convert it yourself on a machine with no network access, then compare the output carefully.
+    - Refuse it, because loading a pickle-format weight file can execute code on your machine.
+    - Accept it, because the conversion script is the part that would do anything dangerous.
+  correct: 2
+  explanation: >-
+    PyTorch checkpoints are serialised with pickle, so loading one is a deserialisation that can
+    run arbitrary code — which is why Hugging Face documents the risk and why the rule is to use
+    GGUF from a named publisher. A file arriving by message from a stranger is the worst possible
+    provenance, and Module 11 turns this habit into a routine.
+
+- id: q4
+  question: >-
+    You are about to pull a model for a 16 GB laptop. Which check is worth doing before the download
+    rather than after it?
+  options:
+    - Check whether the publisher still allows personal use under the model's licence.
+    - Confirm the tag names a family whose training data is documented somewhere public.
+    - Confirm the model is on a machine with no GPU, since GPU support is not available in Ollama.
+    - Read the tag, and estimate the file size against the RAM you want free afterwards.
+  correct: 3
+  explanation: >-
+    The tag tells you the parameter count and the quantisation, which together give the download
+    size, and that size is what the machine has to hold in RAM while it answers. A 14B tag is
+    9.3 GB on Ollama's library page — a poor choice on a 16 GB box, and obvious from the name
+    before anything is downloaded.

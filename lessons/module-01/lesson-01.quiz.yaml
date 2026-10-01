@@ -1,0 +1,62 @@
+- id: q1
+  question: >-
+    After `ollama pull qwen3:4b` and a question that produced a good answer, where are that model's
+    weights at that moment?
+  options:
+    - In a local file under your home directory, read into RAM while an answer is produced.
+    - In the runtime's memory for as long as the server runs, and nowhere else on the machine.
+    - Fetched again from the vendor's servers each time the model server starts up.
+    - In the publisher's own registry, reachable only while you stay signed in to your account.
+  correct: 3
+  explanation: >-
+    A pull writes the weights to `~/.ollama/models` (a different path on Windows and Linux) and
+    `ollama list` shows the size of that file, which is the first of the three locality tests in
+    the lesson. At request time the runtime maps those weights into memory, and every token after
+    that is computed by your own processor.
+
+- id: q2
+  question: >-
+    You switch off your Wi-Fi, ask a question, and the model answers. What has that test actually
+    established?
+  options:
+    - That the answer was produced by a model running on your own machine.
+    - That the runtime makes no outbound network requests of any kind, at any moment.
+    - That the model files are kept on your disk rather than in a temporary cache.
+    - That Home Assistant on the same machine cannot reach the internet either.
+  correct: 0
+  explanation: >-
+    With no uplink, a cloud service cannot have produced that answer, so the inference was local.
+    It does not prove the absence of every other connection, because update checks and model
+    downloads are different code paths; the complete proof, with the network blocked at the
+    firewall, is Module 12's job.
+
+- id: q3
+  question: >-
+    Why does this course serve models with Ollama but take its measurements with `llama-bench`?
+  options:
+    - Because `llama-bench` is the only tool that can report a generation rate in tokens per second.
+    - Because Ollama makes the hardware decisions for you, and `llama-bench` reports them as numbers.
+    - Because Ollama has stopped supporting inference on a machine that has no GPU.
+    - Because `llama-bench` can load a quantised GGUF file that Ollama refuses to serve.
+  correct: 1
+  explanation: >-
+    Ollama picks a quantisation, keeps a model store and opens the right context window for you,
+    which is exactly what you want while learning and exactly what you do not want while
+    measuring. `llama-bench` exposes the same inference with nothing hidden, and reports prompt and
+    generation throughput separately, because they are limited by different things.
+
+- id: q4
+  question: >-
+    A 2.5 GB model is running on a machine with about 1.5 GB of free memory. Answers arrive at a
+    fraction of a token per second and the machine becomes unresponsive. What is happening?
+  options:
+    - The runtime is limiting the processor, because the model's licence restricts its use.
+    - The network stack is retrying a failed connection to the model server on every token.
+    - The weights are being paged between RAM and disk, so every single token pays for a disk read.
+    - The model is being downloaded again, because the runtime re-fetches weights per request.
+  correct: 2
+  explanation: >-
+    The runtime maps the weights from disk, so the model appears to load even when the memory is
+    not there, and then every token is a page fault. Nothing reports an error, `doctor` stays green,
+    and the only symptom is that the machine is unusable — which is why a RAM budget is calculated
+    before a model is chosen rather than after.

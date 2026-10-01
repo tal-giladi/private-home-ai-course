@@ -1,0 +1,63 @@
+- id: q1
+  question: >-
+    A home chat assistant forgets what was said three exchanges ago. Nothing else is wrong with the
+    model. Which setting is the first one to check?
+  options:
+    - The thread count, because too few threads truncate the conversation before it is processed.
+    - The context size, because it decides how much of the conversation the model can see at once.
+    - The quantisation, because a coarser quantisation forgets earlier tokens sooner.
+    - The keep-alive value, because a short keep-alive discards the conversation between requests.
+  correct: 1
+  explanation: >-
+    Context size is the window that holds the system prompt, the conversation and the reply, and
+    4096 is the default on a machine without a GPU. Too small a window and the earliest exchanges
+    are simply not in the model any more; keep-alive concerns whether the weights stay in RAM, and
+    the conversation is sent again with every request either way.
+
+- id: q2
+  question: >-
+    You raise the context from 4096 to 32768 and the model answers more slowly, per token, even
+    though the CPU has plenty of cores left. What explains that?
+  options:
+    - The tokeniser becomes slower as the context grows, which delays every generated token.
+    - The runtime re-checks the weights against every cached token, so the extra work grows.
+    - The KV cache is read for each new token, so a longer context means more bytes per token.
+    - A larger context makes the runtime run on more threads, and threads contend for memory.
+  correct: 2
+  explanation: >-
+    Attention has to look at everything the model has read so far, so the key and value cache is
+    re-read on every step — a longer context adds bandwidth cost per token, not just memory. This
+    is why generation is bandwidth-bound: the machine was already reading as fast as its memory
+    allows, and now it has more to read.
+
+- id: q3
+  question: >-
+    Ollama's FAQ says required RAM scales with `OLLAMA_NUM_PARALLEL` times
+    `OLLAMA_CONTEXT_LENGTH`. You set four parallel requests with an 8192 context on a 16 GB
+    machine. What should you expect?
+  options:
+    - Only the disk grows, because the KV cache is written to the model store rather than to RAM.
+    - Each slot gets a quarter of the context, so the four of them share the same allocation.
+    - Nothing changes, because the context is only allocated while a request is in flight.
+    - The machine pages, because four slots of 8192 tokens are allocated regardless of usage.
+  correct: 3
+  explanation: >-
+    The allocation is sized for the worst case the configuration allows — four concurrent 8192-token
+    conversations — not for what you actually send. On a 16 GB machine that is the difference
+    between a working stack and one where Home Assistant and the model cannot both be resident.
+
+- id: q4
+  question: >-
+    You are measuring two models against each other and want the same question to give the same
+    answer twice. Which setting change, and why?
+  options:
+    - Set temperature to 0, so the model always takes the most likely next token.
+    - Set keep-alive to zero, so the model reloads and forgets the previous answer.
+    - Set `num_predict` to 64, so both answers are cut to the same length before comparison.
+    - Set the thread count to four, so the sampling order is identical on every run.
+  correct: 0
+  explanation: >-
+    Temperature controls how far the sampler may wander from the most likely token, so at 0 the
+    result is reproducible and a difference between two models is a difference between the models.
+    This is why the course's own benchmark script sets temperature 0: a measurement that changes
+    because of the sampler is not a measurement.

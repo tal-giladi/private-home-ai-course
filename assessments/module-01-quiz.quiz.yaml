@@ -1,0 +1,141 @@
+- id: q1
+  question: >-
+    You have pulled `qwen3:4b` and asked it one question. About 2.5 GB came down the wire. Where
+    is that data, and what does its existence prove?
+  options:
+    - It is cached on the vendor's server, and the download only authorised a local copy.
+    - It is in the runtime's memory, and it disappears when the server process stops.
+    - It is a file under your home directory, so no remote service can be producing the answer.
+    - It is in the model's own registry, readable only while you stay signed in to the account.
+  correct: 2
+  explanation: >-
+    A pull writes the weights to `~/.ollama/models` — a different path on Windows and Linux — and
+    `ollama list` shows the size of that file, which is the first of the three locality checks in
+    the lesson. At request time the runtime reads those weights into memory and computes the answer
+    on your processor, so a multi-gigabyte local file rules out a per-question download.
+
+- id: q2
+  question: >-
+    The same 4B model at Q8_0 generates about 30% slower on your laptop than the same model at
+    Q4_K_M. Why?
+  options:
+    - Q8_0 runs on a different inference path that skips the vectorised kernels entirely.
+    - Q8_0 uses more RAM, so the operating system starts swapping the weights during generation.
+    - Q8_0 raises the context length, so more of the conversation is re-read on every token.
+    - Q8_0 stores roughly twice the bytes, and generation is limited by how fast memory delivers.
+  correct: 3
+  explanation: >-
+    Generation re-reads the weights for every token, so the bytes per token are the cost, and Q8_0
+    stores roughly twice what Q4_K_M does. You are buying a quality difference most people cannot
+    hear with a speed and memory difference everybody can feel, which is why Q4_K_M is the home
+    default and Q8_0 is not a free upgrade.
+
+- id: q3
+  question: >-
+    A model answers with a fabricated transcript of a conversation that never happened, and
+    `ollama show` reports no chat template. What is the explanation?
+  options:
+    - It is a base checkpoint, so it continues your text instead of answering it.
+    - The context window is set to 0, so nothing in the prompt is being read at all.
+    - The quantisation is Q4_K_M, which is known to produce confident nonsense at high temperature.
+    - The keep-alive is set to 0, so the model unloads and reloads between every request.
+  correct: 0
+  explanation: >-
+    A base model is a next-token predictor with no instruction tuning, so from its point of view a
+    question is simply text to continue, and a transcript is a perfectly good continuation. A
+    missing chat template in `ollama show` is the tell, and the `instruct` or `it` marker in a tag
+    is the hint that the build you actually want exists.
+
+- id: q4
+  question: >-
+    You raise the context from 4 096 to 32 768 and every answer becomes slower per token, with the
+    processor still mostly idle. What has changed?
+  options:
+    - The tokeniser is rebuilt for the new context, which adds a fixed cost to each generated token.
+    - The model re-reads a KV cache four times larger, so more bytes are read for every token.
+    - The runtime switches from batched prompt processing to one token at a time at that size.
+    - The weights are quantised further, so the file is smaller and each load takes longer.
+  correct: 1
+  explanation: >-
+    Attention looks at everything the model has read so far, so the key and value cache is read on
+    every step and a longer context adds bandwidth cost per token, not just memory. The idle
+    processor is the signature of a bandwidth-bound workload, and it is why a context that is too
+    large is a speed decision as much as a memory one.
+
+- id: q5
+  question: >-
+    Home Assistant, the voice services and a chat model share a 16 GB machine. What does the
+    default five-minute keep-alive cost you?
+  options:
+    - Nothing, because the runtime returns the memory the moment a response has been sent.
+    - A second copy of the weights, so that a request arriving later is answered faster.
+    - Several gigabytes stay reserved for five minutes after the last request, unusable by others.
+    - Five minutes of idle power, which is the only effect a keep-alive value has at all.
+  correct: 2
+  explanation: >-
+    Keep-alive is the time the runtime holds the weights and their KV cache after the last
+    request, which on a 16 GB machine is the difference between a comfortable box and one that
+    starts paging. `ollama ps` shows it in the UNTIL column and `ollama stop` gives the memory back
+    immediately, so the value is a decision you make rather than a default you inherit.
+
+- id: q6
+  question: >-
+    You set `num_thread` to 16 on a machine with six physical cores. What should you expect?
+  options:
+    - Prompt processing roughly doubles, because the arithmetic scales with the thread count.
+    - Generation roughly doubles, because more threads can read memory faster than fewer.
+    - Both roughly double, because the runtime splits the two kinds of work evenly.
+    - Prompt processing improves and generation flattens past about four to eight threads.
+  correct: 3
+  explanation: >-
+    Prompt processing is arithmetic over a batch of tokens, so it scales with cores, and the
+    published llama-bench sweep keeps climbing to 32 threads. Generation is bandwidth-bound, so it
+    flattens once the memory bus is saturated — which is why the honest setting is your physical
+    core count and no more.
+
+- id: q7
+  question: >-
+    A colleague sends a folder containing `pytorch_model.bin` and a small conversion script. What
+    is the correct response, and why?
+  options:
+    - "Refuse it: a pickle-format weight file can execute code when it is loaded."
+    - Convert it on an isolated machine, then compare the output against a model you already have.
+    - Accept it, because the conversion script is the only part that would ever run code.
+    - Accept it, because GGUF files can only be produced by converting a PyTorch checkpoint.
+  correct: 0
+  explanation: >-
+    PyTorch checkpoints are serialised with pickle, so loading one is a deserialisation that can
+    run arbitrary code, which is why Hugging Face documents the risk and why the rule is to use
+    GGUF from a named publisher. A file arriving by message from a stranger is the worst possible
+    provenance, and Module 11 turns that instinct into a routine.
+
+- id: q8
+  question: >-
+    Why does this course serve models with Ollama but take its measurements with `llama-bench`?
+  options:
+    - Because `llama-bench` is the only tool that reports generation throughput at all.
+    - Because Ollama makes the hardware choices for you, and `llama-bench` reports them as numbers.
+    - Because Ollama has stopped supporting inference on a machine that has no GPU.
+    - Because `llama-bench` serves an OpenAI-compatible API and Ollama does not.
+  correct: 1
+  explanation: >-
+    Ollama picks a quantisation, keeps a model store and opens the right context window for you,
+    which is what you want while learning and what you do not want while measuring.
+    `llama-bench` exposes the same inference with nothing hidden, repeats each test, and reports
+    prompt and generation throughput separately, because they are limited by different things.
+
+- id: q9
+  question: >-
+    You want to be as sure as you can be that no prompts leave the machine. What is the strongest
+    check available in this module?
+  options:
+    - Read the runtime's FAQ, which states that local prompts are not sent back to the vendor.
+    - Confirm the model's file size on disk, which rules out a remote copy of the weights.
+    - Set `OLLAMA_NO_CLOUD=1`, confirm the log line, then ask a question with the network off.
+    - Add a firewall rule that lets the runtime reach the internet but blocks every other program.
+  correct: 2
+  explanation: >-
+    This is three independent pieces of evidence — cloud features disabled, the server saying so in
+    its own log, and a successful answer with no uplink — and it is the strongest check the module
+    can offer. It still does not prove the absence of every other outbound connection, which is why
+    the full firewall-level proof of the no-cloud claim is Module 12's job.

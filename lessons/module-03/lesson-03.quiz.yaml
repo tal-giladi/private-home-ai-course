@@ -3,11 +3,11 @@
     The Compose file declares the `ai` network with `internal: true`, and the model server has no
     `ports:` entry. What follows from that combination?
   options:
-    - Other containers can reach the model server, but nothing outside the network can.
-    - The model server can download models directly, but cannot be reached by other containers.
     - Both other containers and the host can reach it, but neither can reach the internet.
     - Neither other containers nor the host can reach it, because an internal network has no ports.
-  correct: 0
+    - Other containers can reach the model server, but nothing outside the network can.
+    - The model server can download models directly, but cannot be reached by other containers.
+  correct: 2
   explanation: >-
     `internal: true` removes the network's gateway, so containers on it can resolve and reach each
     other but have no route out. With no published port there is no listener on the host either, so
@@ -18,11 +18,11 @@
     A user pulls a model with `ollama pull` on the host, and afterwards the chat interface reports
     that no models are available. Why?
   options:
-    - The model is still downloading, and the interface only lists fully downloaded models.
-    - The model was written to the host's own store, not to the volume the container reads from.
     - The chat interface caches its model list and needs a restart to see a newly pulled model.
     - The internal network prevents the interface from listing models that were pulled outside it.
-  correct: 1
+    - The model is still downloading, and the interface only lists fully downloaded models.
+    - The model was written to the host's own store, not to the volume the container reads from.
+  correct: 3
   explanation: >-
     A native Ollama on the host and the container in the stack read from different directories. Pull
     into the stack's named volume instead, using a throwaway container on Docker's default bridge
@@ -33,11 +33,11 @@
     The chat interface is configured with `OLLAMA_BASE_URL: "http://127.0.0.1:11434"` while the
     model server is a service on the same Compose network. What happens on the first message?
   options:
-    - It works, because containers share the host's loopback interface.
     - It returns a connection error, because a container's loopback address is its own, not the host's.
     - It works after the first request, once Docker has populated its DNS cache.
     - It works only if the model server is restarted, which publishes the port to the bridge.
-  correct: 1
+    - It works, because containers share the host's loopback interface.
+  correct: 0
   explanation: >-
     Each container has its own network namespace, so `127.0.0.1` inside the chat interface means the
     chat interface. Services on the same Compose network find each other by name, which is why the
@@ -47,11 +47,11 @@
   question: >-
     Why is the model server's port not published even though Home Assistant needs to reach it?
   options:
-    - Docker cannot publish more than one port per service.
     - A published port is always reachable from the internet, with no way to restrict it to the LAN.
     - The Ollama API has no authentication, so anything that can reach the port can use the machine's compute.
     - Publishing a port requires the container to run as root, which is not the default.
-  correct: 2
+    - Docker cannot publish more than one port per service.
+  correct: 1
   explanation: >-
     Anyone who can reach the Ollama API can list, pull and delete models and use the compute, with
     no credentials. Putting both services on an internal network lets them talk to each other

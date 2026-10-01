@@ -32,11 +32,11 @@
     A script inside a container on the Compose network calls `http://127.0.0.1:11434` and gets a
     connection error, while the same URL works from your shell. What is the reason?
   options:
-    - The container is on an internal network, so loopback traffic is blocked by Docker.
-    - Each container has its own network namespace, so 127.0.0.1 there refers to that container, not the host.
     - The model server is bound to 0.0.0.0, which excludes loopback connections by design.
     - The host's native Ollama and the container's server are using different ports for the same URL.
-  correct: 1
+    - The container is on an internal network, so loopback traffic is blocked by Docker.
+    - Each container has its own network namespace, so 127.0.0.1 there refers to that container, not the host.
+  correct: 3
   explanation: >-
     A container's loopback address means the container itself, so the request never leaves it. On a
     Compose network, services reach each other by name, which is why the correct value is
@@ -47,11 +47,11 @@
     The same prompt sent through the native API and through the OpenAI-compatible API gives
     noticeably different replies, and the compatible endpoint's token counts are missing. Why?
   options:
-    - The compatible endpoint uses a different model unless you pass the full tag with its quantisation.
     - The compatible endpoint applies a default temperature and ignores options it does not recognise.
     - The compatible endpoint truncates the conversation to the model's base context length.
     - The compatible endpoint routes the request to the default model when the name is unknown.
-  correct: 1
+    - The compatible endpoint uses a different model unless you pass the full tag with its quantisation.
+  correct: 0
   explanation: >-
     The OpenAI-compatible API is a subset, and anything it does not recognise falls back to the
     server's defaults rather than being reported back to you. That silent difference in generation

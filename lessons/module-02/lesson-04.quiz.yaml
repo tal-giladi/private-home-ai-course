@@ -1,0 +1,64 @@
+- id: q1
+  question: >-
+    A 7B Q4 model fits your RAM bill with 8 GB to spare, and your own arithmetic predicts about
+    3 tok/s of generation. Your chat target is 8 tok/s. What is the correct decision?
+  options:
+    - Use it at Q8_0, so the extra quality compensates for the slower tokens it will produce.
+    - Use it, but raise the efficiency factor so the prediction agrees with the target you need.
+    - "Do not use it: it fails the speed filter, so take the largest model that passes instead."
+    - Use it, because the RAM bill is the only hard constraint and it has been satisfied.
+  correct: 2
+  explanation: >-
+    The filters run in order — memory, then generation, then prompt — and a model that misses the
+    speed target is out, however comfortably it fits. Quality moves in steps while speed falls
+    continuously with file size, so the largest model that still clears the bar is always at least
+    as good as a smaller one and there is no trade-off left to argue about.
+
+- id: q2
+  question: >-
+    Nothing in your candidate list meets the 22 tok/s voice target on your machine. What is the
+    right response to that result?
+  options:
+    - Lower the target to 10 tok/s, so the largest model in the list becomes a valid choice.
+    - Raise the quantisation to Q8_0, which spends a little memory to buy a large gain in speed.
+    - Pick the fastest candidate anyway, because most users will not notice the extra delay.
+    - Change the design or the machine, because no smaller download will close a gap this wide.
+  correct: 3
+  explanation: >-
+    A target that nothing meets is information about the hardware, not about the models, and the
+    honest answers are a different design — fixed intents first, the model only as a fallback — or
+    a different machine. A higher quantisation makes things slower rather than faster, because
+    there are more bytes to read for every token.
+
+- id: q3
+  question: >-
+    You predicted 14 tok/s for a model and measured 5.4 tok/s on the same machine. What is the most
+    useful response to that gap?
+  options:
+    - Find the cause, because a gap this large names a specific limit rather than a bad model.
+    - Adopt the measured number as the prediction and stop using the bandwidth rule entirely.
+    - Raise the efficiency factor to match, so the next prediction for this machine is accurate.
+    - Re-measure, because a gap of this size is almost always a cold model or a stuck process.
+  correct: 0
+  explanation: >-
+    The prediction and the measurement together are the result, and the gap points at a short list
+    of causes: single-channel memory, a throttling or battery-powered machine, a page file, or
+    another process taking the bandwidth. Adjusting the factor before you know why is calibrating
+    your error rather than your machine, and it hides the one thing worth knowing.
+
+- id: q4
+  question: >-
+    A question over your own files sends 2 000 prompt tokens and expects a 60-token answer.
+    Generation is comfortable at 15 tok/s. What is the real risk in that design?
+  options:
+    - The model will ignore the retrieved text, because 2 000 tokens exceed its useful context.
+    - The first word will be late, because the prompt stage runs at tens of tokens per second.
+    - The answer will be too short, because 60 tokens is below what the chat template requires.
+    - The vector store will re-embed the question on every call, which adds seconds of its own.
+  correct: 1
+  explanation: >-
+    A retrieval question is mostly prompt: at the prompt rates cited in this course, 2 000 tokens
+    is roughly 20 to 65 seconds of processing before generation even starts, and the generation
+    target is comfortably met afterwards. That asymmetry is why the design decisions to shorten
+    chunks, cache results and summarise before the model are about the prompt stage, not the
+    answer.

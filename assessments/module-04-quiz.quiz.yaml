@@ -3,11 +3,11 @@
     You want to run a Python library on your own machine that only knows how to call a hosted
     provider's chat API and refuses to start without a key. Which endpoint and key do you use?
   options:
-    - The native `/api/chat` endpoint, with the model name supplied as the key.
     - The OpenAI-compatible `/v1/chat/completions` endpoint, with any non-empty string as the key.
     - The `/api/tags` endpoint, which returns a token the client accepts as credentials.
     - Neither works; the client only accepts keys issued by a hosted provider.
-  correct: 1
+    - The native `/api/chat` endpoint, with the model name supplied as the key.
+  correct: 0
   explanation: >-
     Local runtimes expose the OpenAI-shaped API precisely so unmodified clients work against them,
     and they do not validate the key. That also means reachability is the only protection there is,
@@ -34,11 +34,11 @@
     A colleague notices that a local chat interface is slower to start each day than the previous
     one. What is the most likely explanation?
   options:
-    - Automatic conversation titling makes an extra model call for each new chat.
-    - The model is being reloaded from disk because the server restarted overnight.
     - The interface now checks for updates on every launch, which adds a round trip.
     - Sign-up being enabled causes a fresh account creation for every session.
-  correct: 0
+    - Automatic conversation titling makes an extra model call for each new chat.
+    - The model is being reloaded from disk because the server restarted overnight.
+  correct: 2
   explanation: >-
     Titling, tags and follow-up suggestions are convenience features implemented as extra model
     calls. They look free because no one is typing when they happen, and each one costs a full
@@ -49,11 +49,11 @@
     Your stack reports that the model server container exited with code 137 shortly after a request
     that used a 32 000-token context. What is the most probable cause?
   options:
-    - The container exceeded its memory limit and was killed from outside by the kernel.
     - The image was built for the wrong CPU architecture and could not initialise.
     - The internal network lost its gateway, so the runtime could not allocate more sockets.
     - A health check ran out of retries and Compose shut the service down on purpose.
-  correct: 0
+    - The container exceeded its memory limit and was killed from outside by the kernel.
+  correct: 3
   explanation: >-
     A large context allocates a KV cache on top of the weights, and the two together can exceed a
     limit that looks generous for short prompts. The kill comes from the kernel rather than the
@@ -64,11 +64,11 @@
     A user asks the model to summarise a web page by pasting its address, and a summary comes back.
     Which request left the network, and who made it?
   options:
-    - None; the local model fetched the page itself and summarised it locally.
-    - The model server fetched the page, because it is the component with network access.
     - The interface's page loader fetched the page on the user's behalf, before the model saw it.
     - The browser fetched the page and passed the whole response into the prompt.
-  correct: 2
+    - None; the local model fetched the page itself and summarised it locally.
+    - The model server fetched the page, because it is the component with network access.
+  correct: 0
   explanation: >-
     A local model cannot fetch anything. The interface does it, and that request reveals your IP
     address and page content to the remote site. It is a small leak that experienced users miss,
@@ -79,11 +79,11 @@
     A user sets `OLLAMA_NUM_PARALLEL: 4` on a CPU-only box, hoping to serve several people at once.
     What happens to each individual reply?
   options:
-    - Each reply finishes in about a quarter of the time, since four requests share the work.
     - Each reply takes roughly four times longer, since all four are generated sequentially.
     - Each reply takes roughly twice as long, since the requests divide one memory bandwidth.
     - Nothing changes, because parallel requests only affect GPU-backed models.
-  correct: 2
+    - Each reply finishes in about a quarter of the time, since four requests share the work.
+  correct: 1
   explanation: >-
     Generation is bandwidth-bound, and a CPU has one bandwidth to give. Four concurrent requests do
     not produce four times the bytes, so each one is slower rather than faster, and queueing them
@@ -111,11 +111,11 @@
     You publish the chat interface on your LAN address so your phone can reach it. What is the
     single most important thing to check before leaving it that way?
   options:
-    - That sign-up is disabled and authentication is on with a password from a password manager.
     - That the container's memory limit is high enough to serve a phone and a laptop together.
     - That the interface's page loader is disabled, so the phone does not fetch web pages.
     - That the model server's keep-alive is long enough to avoid reloading on the phone.
-  correct: 0
+    - That sign-up is disabled and authentication is on with a password from a password manager.
+  correct: 3
   explanation: >-
     Publishing the port makes the interface reachable by every device on the network, and the
     interface is a proxy to your model server, so account access is effectively server access.

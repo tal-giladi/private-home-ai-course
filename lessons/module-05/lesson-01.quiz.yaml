@@ -17,11 +17,11 @@
   question: >-
     Which statement about an embedding model is correct?
   options:
+    - It has to be loaded into RAM at the same time as the chat model for answers to be accurate.
     - It is a chat model that has been fine-tuned to return numbers instead of words.
     - It is a separate kind of model, downloaded differently, that maps text to fixed-length vectors.
     - It must be quantised to Q4_K_M to run on a CPU at all.
-    - It has to be loaded into RAM at the same time as the chat model for answers to be accurate.
-  correct: 1
+  correct: 2
   explanation: >-
     Embeddings are not chat models with a different output format. They are trained to place texts
     that mean similar things close together, they are pulled separately from the chat registry, and
@@ -33,11 +33,11 @@
     `OLLAMA_MAX_LOADED_MODELS` at 1, and then alternate a chat question with a voice tool request.
     What is the likely effect?
   options:
+    - The server refuses the second request, because only one model may be used per session.
     - Both requests get faster, because the smaller model is easier to load from disk.
     - Each request waits for the other to finish, but neither is slowed by a model swap.
     - Each alternation unloads one model and loads the other, costing seconds on every switch.
-    - The server refuses the second request, because only one model may be used per session.
-  correct: 2
+  correct: 3
   explanation: >-
     With one model slot and two different models, every switch is an eviction plus a load. That is
     the collision Module 4 measured, and it lands hardest exactly where latency budget is
@@ -48,11 +48,11 @@
     You replace a 4B model's Q4_K_M weights with F16 versions to "get the full quality". What is
     the real cost at home?
   options:
-    - The model runs noticeably slower at every prompt length, because F16 moves twice the bytes.
     - The file roughly doubles and resident RAM roughly doubles, for a gain a home assistant will not show.
     - F16 is only supported on GPUs, so the model fails to load at all on a CPU.
     - The context window doubles, because F16 leaves room for more tokens in the same memory.
-  correct: 1
+    - The model runs noticeably slower at every prompt length, because F16 moves twice the bytes.
+  correct: 0
   explanation: >-
     F16 stores every weight at twice the precision and roughly twice the bytes, so every token
     reads twice the data and the model occupies twice the RAM. The quality difference is small

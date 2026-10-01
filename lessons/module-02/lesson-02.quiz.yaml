@@ -1,0 +1,63 @@
+- id: q1
+  question: >-
+    A model is 3B parameters with 36 blocks, 8 key/value heads and a head dimension of 128, and it
+    keeps its cache in f16. Roughly how much KV cache does a 8 192-token context need?
+  options:
+    - About 576 MiB, which is what 4 096 tokens of the same model would use.
+    - About 144 KiB in total, since the cache per token does not depend on the context length.
+    - About 4.3 GiB, because each token stores a key and a value for every block.
+    - About 1.2 GiB, because grouped-query attention stores far less than the formula suggests.
+  correct: 0
+  explanation: >-
+    Two values per block, 36 blocks, 8 heads, 128 dimensions and 2 bytes each gives 144 KiB per
+    token, and 8 192 tokens is about 1.2 GB — while 4 096 tokens of the same model is the 576 MiB
+    in the other option. The size of a context window is a memory decision before it is a quality
+    one, which is why the lesson computes this per token and multiplies.
+
+- id: q2
+  question: >-
+    A machine has 16 GB of RAM and a 4B model that fits comfortably. Adding a voice pipeline and a
+    vector store pushes the total over. What does that tell you to do first?
+  options:
+    - Move the browser's memory to the page file, since the browser is the largest single item.
+    - Keep the model and drop the optional vector store, starting it only when you need it.
+    - Buy more RAM, because the bill shows the machine is under-provisioned for any local AI.
+    - Raise the context to 8 192 tokens, which gives the model more room to answer properly.
+  correct: 1
+  explanation: >-
+    The bill is a sum of decisions, and the vector store is the one service that can be started
+    on demand instead of always, which makes it the cheapest thing to give up. Cutting the context
+    is the first lever when the context is oversized, but this model already fits at 4 096, so the
+    saving there is a few hundred megabytes rather than a whole service.
+
+- id: q3
+  question: >-
+    `ollama list` says the model is 2.5 GB. On your machine the model process is using 4.4 GB while
+    it answers. Where does the extra 1.9 GB come from?
+  options:
+    - The download cache, because Ollama keeps the archive until the model is used twice.
+    - The chat interface, which loads into the same process when it is used locally.
+    - The KV cache for the context in use, plus compute buffers and other runtime overhead.
+    - A second copy of the weights kept for faster loading on the next request.
+  correct: 2
+  explanation: >-
+    The weights are only one of four items on the bill, and the difference between the file size
+    and the resident size is the most useful measurement you can take. Published Pi 5 data put
+    that gap between 0.6 GB and 2.7 GB depending on the model and the context, so budget a range
+    and then replace it with your own number.
+
+- id: q4
+  question: >-
+    Docker Desktop on Windows has been given 8 GB, WSL2 is capped at 12 GB, and the machine has
+    16 GB. A container is killed mid-request with no error in its own log. What is happening?
+  options:
+    - The compose file sets a logging driver, and log rotation removed the useful lines.
+    - The container has no health check, so the runtime stopped it during the first request.
+    - The Windows page file is disabled, so the kernel killed the process instead of swapping.
+    - The model inside the container is larger than the memory the container was allowed.
+  correct: 3
+  explanation: >-
+    The container runtime enforces its own limit independently of the machine's RAM, and the
+    smaller limit wins — so the process that dies is the largest one, which is the model server,
+    and it dies without running its own error handling. A per-service memory limit turns this into
+    a visible, bounded failure instead of a mysterious one.

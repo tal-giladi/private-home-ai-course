@@ -1,0 +1,142 @@
+- id: q1
+  question: >-
+    A 4B Q4_K_M model is 2.5 GB. Your machine's peak bandwidth is 89.6 GB/s and your own measured
+    efficiency factor is 0.45. Roughly what generation speed should you expect?
+  options:
+    - About 80 tok/s, because peak bandwidth divided by the file size is the whole calculation.
+    - About 8 tok/s, because the file size has to be added to the bandwidth rather than divided.
+    - About 1.5 tok/s, because the context length belongs in the bytes read for every token.
+    - About 16 tok/s, because 89.6 x 0.45 is 40 GB/s and 40 divided by 2.5 GB is 16.
+  correct: 3
+  explanation: >-
+    The rule multiplies peak bandwidth by the efficiency factor, then divides by the bytes read per
+    token, which is the weight file plus the KV cache. A context size does belong in that
+    calculation, but as the cache term and not as a replacement for the file size — and the result
+    is a prediction to be measured, not a number to rely on.
+
+- id: q2
+  question: >-
+    A dual-channel desktop with one 16 GB module in slot A2 runs a 4B model at about 7 tok/s. What
+    changes when a second matching module goes into slot B2?
+  options:
+    - Generation roughly doubles, prompt speed barely moves, and the RAM available does not change.
+    - Everything roughly doubles, because the memory controller now serves two separate modules.
+    - Nothing changes, because a single module already saturates the controller at 7 tok/s.
+    - Generation stays the same, because bandwidth only limits models larger than about 4 GB.
+  correct: 0
+  explanation: >-
+    A second module in the paired slot enables the second channel, roughly doubling the bytes per
+    second the processor can pull, and generation is bandwidth-bound so it follows. Prompt
+    processing is arithmetic over a batch and barely notices, and two 8 GB sticks are the same
+    amount of memory as one 16 GB stick, so the RAM bill is unchanged.
+
+- id: q3
+  question: >-
+    Your first `bench` run after a restart reports a prompt rate of 6 tok/s. The same script, run
+    again with the model already loaded, reports 44. What explains the difference?
+  options:
+    - The two runs used different models, so the numbers were never comparable.
+    - The first run included the model load, and the script's token counts are approximate.
+    - The temperature was 0 in one run and 0.8 in the other, which changes prompt processing.
+    - The page file was active during the first run and had been disabled before the second.
+  correct: 1
+  explanation: >-
+    Time to first token includes reading the weights from disk when the model is not already
+    resident, and the script derives the prompt rate from that time — so a cold run is mostly
+    measuring the load. This is why the lesson's first instruction is to ask one throwaway question
+    and measure the second.
+
+- id: q4
+  question: >-
+    You predicted 14 tok/s for a model and measured 5.4 tok/s on the same machine. What is the most
+    useful next step?
+  options:
+    - Raise the efficiency factor to match, so the next prediction is closer to the truth.
+    - Re-measure, because a gap of this size is almost always a cold model or a stuck process.
+    - "Find the cause: single-channel memory, throttling, a page file, or a competing process."
+    - Replace the prediction with the measurement and stop using the bandwidth rule entirely.
+  correct: 2
+  explanation: >-
+    The gap between a prediction and a measurement is the most informative number in the module,
+    and a factor of nearly three points at a specific limit rather than at a bad model. Adjusting
+    the efficiency factor first would hide the cause by baking it into the constant, and you would
+    carry the same wrong answer to the next machine.
+
+- id: q5
+  question: >-
+    Nothing in your candidate list meets the 22 tok/s target you set for a voice assistant's brain.
+    What is the right response to that result?
+  options:
+    - Pick the fastest candidate anyway, because most users will not notice the extra delay.
+    - Lower the target to 10 tok/s, so the largest model in the list becomes a valid choice.
+    - Raise the quantisation to Q8_0, which spends a little memory to buy a large gain in speed.
+    - Change the design or the machine, because no smaller download will close a gap this wide.
+  correct: 3
+  explanation: >-
+    A target that nothing meets is information about the hardware, and the honest answers are a
+    different design — fixed intents first, the model only as a fallback — or a different machine.
+    A higher quantisation makes generation slower rather than faster, and moving the target down
+    until something fits is how a product ends up missing its own latency budget on every request.
+
+- id: q6
+  question: >-
+    `ollama list` reports a 2.5 GB model, and the process is using 4.4 GB while it answers. Where
+    does the extra 1.9 GB come from?
+  options:
+    - The KV cache for the context in use, plus compute buffers and other runtime overhead.
+    - A second copy of the weights, kept so that a later request is answered faster.
+    - The download cache, because the runtime keeps the archive until the model has been used twice.
+    - The chat interface, which runs inside the same process whenever it is used locally.
+  correct: 0
+  explanation: >-
+    The weights are only one of four items on the RAM bill, and the difference between the file
+    size and the resident size is the single most useful measurement you can take. Published Pi 5
+    data put that gap between 0.6 GB and 2.7 GB depending on the model and the context, so budget a
+    range and then replace it with your own figure.
+
+- id: q7
+  question: >-
+    A model has 28 blocks, 8 key/value heads and a head dimension of 128, and it keeps its cache
+    in f16. How much does a 4 096-token context add to the bill?
+  options:
+    - About 112 MiB, because the cache per token is the only thing that scales with context.
+    - About 448 MiB, which is 112 KiB per token multiplied by 4 096 tokens.
+    - About 3.5 GiB, because the cache is always sized for the model's maximum context.
+    - About 448 GiB, because each token stores one value per block in sixteen-bit form.
+  correct: 1
+  explanation: >-
+    Two values per block, 28 blocks, 8 heads, 128 dimensions and 2 bytes each gives 112 KiB per
+    token, and 4 096 tokens is 448 MiB. The same model at 32 768 tokens is 3.5 GiB, which is why
+    context length is a memory decision before it is a quality one.
+
+- id: q8
+  question: >-
+    `llama-bench -hf Qwen/Qwen3-4B-GGUF:Q4_K_M -p 512 -n 0` returns a single row labelled `pp 512`.
+    What have you measured?
+  options:
+    - Nothing valid, because a figure needs both tests to appear in the same run.
+    - Both tests at once, because the tool splits the work between the two halves of the run.
+    - Prompt processing alone, since no tokens were generated during this run.
+    - Generation alone, because a large prompt count makes the tool infer the test instead.
+  correct: 2
+  explanation: >-
+    `-p 0` measures generation alone and `-n 0` measures prompt processing alone, which is how you
+    separate the two limits instead of blending them into one meaningless average. The row label
+    says which test produced it: `pp 512` is 512 prompt tokens processed per second, with nothing
+    generated in the same run.
+
+- id: q9
+  question: >-
+    You want to use your own efficiency factor to size a 7B model you have never run. What does the
+    method require of you?
+  options:
+    - Re-run the thread sweep, because the factor changes with the thread count you use.
+    - Use total RAM rather than peak bandwidth, because RAM is the harder limit in every case.
+    - Take the factor from the published benchmarks, so your numbers match everybody else's.
+    - Multiply your peak bandwidth by your own factor and divide by that model's file size.
+  correct: 3
+  explanation: >-
+    That is the whole point of calibrating the factor: it makes a prediction for a model you have
+    never loaded a matter of arithmetic, and it is what lets you check the method against a
+    measurement afterwards. RAM is a separate filter applied first as a hard limit, and published
+    factors belong to other people's machines — the Ryzens and the Pi 5s, not to yours.

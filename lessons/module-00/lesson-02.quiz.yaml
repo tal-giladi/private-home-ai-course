@@ -1,0 +1,61 @@
+- id: q1
+  question: >-
+    `python homelab.py doctor` prints `memory channels: unknown` on your Windows machine. What does
+    that line mean, and what do you do about it?
+  options:
+    - The script could not read your RAM, so the tier it reports may be wrong.
+    - There is no portable way to ask, so look up your model's memory specification yourself.
+    - Your memory is running in single-channel mode and the script cannot tell which.
+    - The channel count only appears when Docker is installed and its daemon is running.
+  correct: 1
+  explanation: >-
+    Windows and macOS give scripts no reliable way to report memory modules, so the tool says
+    `unknown` rather than guess — a wrong channel count would wreck the bandwidth estimate that
+    every later lesson depends on. Reading the module count and speed from the machine's
+    specification is the step that replaces the missing line.
+
+- id: q2
+  question: >-
+    The report shows `available ram 1.2 GB free right now` but `total ram 15.8 GB`, and still
+    classifies the machine as tier A. Why?
+  options:
+    - The script only reads total RAM after a restart, so the value is one boot out of date.
+    - Available memory is excluded from the calculation because it changes minute to minute.
+    - The tier is calculated from total RAM and physical core count, and nothing else.
+    - A machine under 2 GB free is demoted to tier C, so the two lines must disagree.
+  correct: 2
+  explanation: >-
+    The tier describes what the hardware has, so it is deliberately computed from total RAM and
+    core count. That is also the trap: a machine can be tier A on paper and out of memory in
+    practice, which is why the RAM bill counts everything the box is already running.
+
+- id: q3
+  question: >-
+    Which combination of ports and services belongs to the course's stack, so you can recognise
+    them in the report?
+  options:
+    - 443 for the chat interface, 22 for the model server, 8123 for the vector store.
+    - 11434 for the wake word, 6333 for chat, 8080 for the voice pipeline.
+    - 8080 for the model server, 11434 for Home Assistant, 8123 for chat.
+    - 11434 for the model server, 8080 for the chat interface, 8123 for Home Assistant.
+  correct: 3
+  explanation: >-
+    The model server listens on 11434, the chat interface on 8080 and Home Assistant on 8123, with
+    the vector store on 6333 and the Wyoming voice services from 10200 upwards. `doctor` checks all
+    of them so that by the time you reach Module 11 you already know which ones are listening.
+
+- id: q4
+  question: >-
+    A port line in `doctor` changes to `reachable from your router; this is the one to fix`. Which
+    statement about that line is correct?
+  options:
+    - The service is bound to every interface, so other devices on your network can reach it.
+    - The service is bound to 127.0.0.1, which the script cannot reach from the LAN address.
+    - The router is forwarding that port to the internet and the script is warning you about it.
+    - The service is running, but the firewall is blocking it, so nothing outside can connect.
+  correct: 0
+  explanation: >-
+    `0.0.0.0` is the bind address that means every interface, including the one your router can
+    reach, so the service is on the network rather than on your computer. The fix is to put the
+    bind address back to loopback and re-run the report; Module 11 designs this properly for every
+    service at once.

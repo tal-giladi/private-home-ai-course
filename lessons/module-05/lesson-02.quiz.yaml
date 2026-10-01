@@ -2,11 +2,11 @@
   question: >-
     Why does a public benchmark rank models poorly at predicting which one suits a home assistant?
   options:
+    - Benchmarks are updated so often that any score printed in a lesson is out of date within weeks.
     - Benchmarks run on hardware far faster than a CPU-only machine, so their ordering does not hold.
     - Benchmarks measure average performance on general tasks, not the specific repeated work a household does.
     - Benchmarks score models before quantisation, so the ranking excludes the format actually used at home.
-    - Benchmarks are updated so often that any score printed in a lesson is out of date within weeks.
-  correct: 1
+  correct: 2
   explanation: >-
     A benchmark reports an average over tasks chosen by its authors. A household repeats a narrow
     set of tasks — the same kinds of documents, the same kinds of commands — and the model that
@@ -19,11 +19,11 @@
     confident prose, with the wrong procedure — something it clearly knows from training. How should
     your eval set score it?
   options:
+    - A fail, but only if the incorrect procedure could damage the machine or the user.
     - A pass, because the answer was correct-sounding and free of hedging.
     - A pass, because the model clearly had relevant knowledge about the appliance.
     - A fail, because the pass condition is about the procedure in the document, not about fluency.
-    - A fail, but only if the incorrect procedure could damage the machine or the user.
-  correct: 2
+  correct: 3
   explanation: >-
     Retrieval-augmented work is judged on whether the answer is supported by the source. Fluency
     from training data is exactly the failure mode you are building the stack to avoid, so the pass
@@ -34,11 +34,11 @@
     Your twenty-task eval gives the fastest model 16 passes and the slowest 19. The voice pipeline
     has a three-second budget per command. What is the defensible choice?
   options:
-    - Take the 19, because three extra passes outweigh any latency difference on a home network.
     - Take the 16, because a command that arrives late is a command the household stops using.
     - Take whichever wins on the action tasks only, since the other tasks do not involve commands.
     - Take neither, and run both, because a model swap between them costs under a second.
-  correct: 1
+    - Take the 19, because three extra passes outweigh any latency difference on a home network.
+  correct: 0
   explanation: >-
     The eval set measures quality and speed separately, and a voice assistant is judged on both at
     once. A tool call that reliably arrives after the user has already given up is not a success

@@ -17,10 +17,10 @@ and keeping the machine healthy. Nothing here asks you to recall a flag name —
 situation you could actually meet.
 
 **Pass mark: 70%.** You need 7 of 9. If you get one wrong, the explanation usually contains the
-reason, and the [Glossary](../../glossary.md) links every term to the lesson that introduces it.
+reason, and the [Glossary](../glossary.md) links every term to the lesson that introduces it.
 
 Before you start, it is worth re-reading your own [measure-yours
-table](../../templates/measure-yours.md) — several questions are easier when you know your machine's
+table](../templates/measure-yours.md) — several questions are easier when you know your machine's
 memory speed and channel count.
 
 Review the module if you need it:

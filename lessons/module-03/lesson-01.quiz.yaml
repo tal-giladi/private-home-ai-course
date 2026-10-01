@@ -3,11 +3,11 @@
     A 3B model manages 4.8 tokens/second on a Raspberry Pi 5 and 13.1 tokens/second on a Ryzen
     mainboard. What is the main reason for the difference?
   options:
-    - The Raspberry Pi's processor is too slow to keep up with the arithmetic.
     - The Pi's single-channel memory delivers far fewer bytes per second than the desktop's dual channel.
     - The Ryzen board has a faster SSD, so model weights load from disk more quickly.
     - The Pi runs an older build of the inference engine that wastes CPU cycles.
-  correct: 1
+    - The Raspberry Pi's processor is too slow to keep up with the arithmetic.
+  correct: 0
   explanation: >-
     Every generated token re-reads the whole model from RAM, so generation is bounded by memory
     bandwidth rather than by arithmetic. The Pi 5 is deliberately single-channel; dual-channel
@@ -33,11 +33,11 @@
     Why does this course tell you to build on the laptop you already own before buying a dedicated
     always-on machine?
   options:
+    - Laptops never enter a sleep state while a container is running.
     - Laptops have more memory bandwidth than desktops at the same price.
     - A second machine bought before anything is built is chosen from other people's benchmarks rather than your own needs.
     - Mini PCs cannot run Docker Compose, so a laptop is the only option for the course.
-    - Laptops never enter a sleep state while a container is running.
-  correct: 1
+  correct: 2
   explanation: >-
     Until you have built the stack, you do not know which part actually needs to be always-on: chat,
     the voice pipeline, or just Home Assistant. Building on hardware you own keeps the cost at zero
